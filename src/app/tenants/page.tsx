@@ -1,26 +1,15 @@
 import { Plus, Search } from "lucide-react";
-import { tenants, contracts, units, properties } from "@/lib/mock-data";
+import { getTenantsWithInfo } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 
-export default function TenantsPage() {
-  const tenantsWithInfo = tenants.map((t) => {
-    const contract = contracts.find(
-      (c) => c.tenant_id === t.id && c.status === "active"
-    );
-    const unit = contract
-      ? units.find((u) => u.id === contract.unit_id)
-      : undefined;
-    const property = unit
-      ? properties.find((p) => p.id === unit.property_id)
-      : undefined;
-    return { ...t, contract, unit, property };
-  });
+export default async function TenantsPage() {
+  const tenantsWithInfo = await getTenantsWithInfo();
 
   return (
     <>
       <PageHeader
         title="入居者管理"
-        description={`${tenants.length}名の入居者`}
+        description={`${tenantsWithInfo.length}名の入居者`}
         action={
           <button className="btn-primary">
             <Plus size={16} />
@@ -57,7 +46,7 @@ export default function TenantsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light">
-              {tenantsWithInfo.map((t) => (
+              {tenantsWithInfo.map((t: Record<string, any>) => (
                 <tr key={t.id} className="hover:bg-bg-secondary/30 transition-colors cursor-pointer">
                   <td className="px-5 py-3 font-medium">{t.name}</td>
                   <td className="px-5 py-3 text-text-muted">{t.name_kana || "—"}</td>
@@ -65,14 +54,14 @@ export default function TenantsPage() {
                   <td className="px-5 py-3 text-text-muted">{t.email || "—"}</td>
                   <td className="px-5 py-3 text-text-muted">{t.workplace || "—"}</td>
                   <td className="px-5 py-3">
-                    {t.property && t.unit ? (
-                      <span>{t.property.name} {t.unit.unit_number}</span>
+                    {t.contract?.unit ? (
+                      <span>{t.contract.unit.property?.name} {t.contract.unit.unit_number}</span>
                     ) : (
                       <span className="text-text-muted">—</span>
                     )}
                   </td>
                   <td className="px-5 py-3 text-right font-medium">
-                    {t.contract ? `¥${t.contract.rent.toLocaleString()}` : "—"}
+                    {t.contract ? `¥${Number(t.contract.rent).toLocaleString()}` : "—"}
                   </td>
                 </tr>
               ))}

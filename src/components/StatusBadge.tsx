@@ -20,6 +20,16 @@ const statusStyles: Record<string, string> = {
   waiting_parts: "bg-warning/10 text-warning ring-warning/20",
   completed: "bg-success/10 text-success ring-success/20",
   cancelled: "bg-bg-secondary text-text-muted ring-border",
+  // 経費カテゴリ
+  repair: "bg-warning/10 text-warning ring-warning/20",
+  cleaning: "bg-accent/10 text-accent ring-accent/20",
+  insurance: "bg-success/10 text-success ring-success/20",
+  tax: "bg-danger/10 text-danger ring-danger/20",
+  utility: "bg-bg-secondary text-text-muted ring-border",
+  // 送金ステータス
+  draft: "bg-bg-secondary text-text-muted ring-border",
+  confirmed: "bg-warning/10 text-warning ring-warning/20",
+  sent: "bg-success/10 text-success ring-success/20",
   // 問い合わせ
   resolved: "bg-success/10 text-success ring-success/20",
   closed: "bg-bg-secondary text-text-muted ring-border",
@@ -62,6 +72,16 @@ const statusLabels: Record<string, string> = {
   facility: "設備",
   move_out: "退去",
   other: "その他",
+  // 経費カテゴリ
+  repair: "修繕費",
+  cleaning: "清掃費",
+  insurance: "保険料",
+  tax: "税金",
+  utility: "光熱費",
+  // 送金ステータス
+  draft: "下書き",
+  confirmed: "確定",
+  sent: "送金済",
 };
 
 interface StatusBadgeProps {

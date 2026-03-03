@@ -1,12 +1,18 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import LoginPage from "./LoginPage";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
+  const { isLoading } = useAuth();
+  const pathname = usePathname();
+
+  // /login はレイアウトなしでそのまま表示
+  if (pathname === "/login") {
+    return <>{children}</>;
+  }
 
   // ローディング中
   if (isLoading) {
@@ -20,12 +26,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // 未認証
-  if (!user) {
-    return <LoginPage />;
-  }
-
-  // 認証済み
+  // 認証済み（未認証は middleware が /login にリダイレクト）
   return (
     <Sidebar>
       <Header />

@@ -1,28 +1,23 @@
-import { rentBillings, contracts, units, properties } from "@/lib/mock-data";
+import { getRentBillings } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 
-export default function RentPage() {
-  const billingsWithInfo = rentBillings.map((b) => {
-    const contract = contracts.find((c) => c.id === b.contract_id);
-    const unit = contract ? units.find((u) => u.id === contract.unit_id) : undefined;
-    const property = unit ? properties.find((p) => p.id === unit.property_id) : undefined;
-    return { ...b, contract, unit, property };
-  });
+export default async function RentPage() {
+  const billings = await getRentBillings();
 
-  const totalExpected = rentBillings.reduce((s, b) => s + b.total_amount, 0);
-  const totalPaid = rentBillings
-    .filter((b) => b.status === "paid")
-    .reduce((s, b) => s + b.total_amount, 0);
-  const overdueCount = rentBillings.filter((b) => b.status === "overdue").length;
-  const overdueAmount = rentBillings
-    .filter((b) => b.status === "overdue")
-    .reduce((s, b) => s + b.total_amount, 0);
+  const totalExpected = billings.reduce((s: number, b: any) => s + Number(b.total_amount), 0);
+  const totalPaid = billings
+    .filter((b: any) => b.status === "paid")
+    .reduce((s: number, b: any) => s + Number(b.total_amount), 0);
+  const overdueCount = billings.filter((b: any) => b.status === "overdue").length;
+  const overdueAmount = billings
+    .filter((b: any) => b.status === "overdue")
+    .reduce((s: number, b: any) => s + Number(b.total_amount), 0);
   const collectionRate = totalExpected > 0 ? Math.round((totalPaid / totalExpected) * 100) : 0;
 
   return (
     <>
-      <PageHeader title="家賃管理" description="2026年2月分" />
+      <PageHeader title="家賃管理" description="家賃請求・入金状況" />
 
       {/* サマリー */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -82,20 +77,20 @@ export default function RentPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light">
-              {billingsWithInfo.map((b) => (
+              {billings.map((b: Record<string, any>) => (
                 <tr
                   key={b.id}
                   className={`hover:bg-bg-secondary/30 transition-colors cursor-pointer ${
                     b.status === "overdue" ? "bg-danger/5" : ""
                   }`}
                 >
-                  <td className="px-5 py-3 text-text-secondary">{b.property?.name || "—"}</td>
-                  <td className="px-5 py-3">{b.unit?.unit_number || "—"}</td>
+                  <td className="px-5 py-3 text-text-secondary">{b.contract?.unit?.property?.name || "—"}</td>
+                  <td className="px-5 py-3">{b.contract?.unit?.unit_number || "—"}</td>
                   <td className="px-5 py-3 font-medium">{b.contract?.tenant?.name || "—"}</td>
                   <td className="px-5 py-3">{b.billing_month}</td>
-                  <td className="px-5 py-3 text-right">¥{b.rent.toLocaleString()}</td>
-                  <td className="px-5 py-3 text-right">¥{b.management_fee.toLocaleString()}</td>
-                  <td className="px-5 py-3 text-right font-medium">¥{b.total_amount.toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right">¥{Number(b.rent).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right">¥{Number(b.management_fee).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right font-medium">¥{Number(b.total_amount).toLocaleString()}</td>
                   <td className="px-5 py-3">{b.due_date}</td>
                   <td className="px-5 py-3"><StatusBadge status={b.status} /></td>
                 </tr>

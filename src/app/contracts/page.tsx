@@ -1,16 +1,10 @@
 import { Plus } from "lucide-react";
-import { contracts, units, properties } from "@/lib/mock-data";
+import { getContracts } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 
-export default function ContractsPage() {
-  const contractsWithInfo = contracts.map((c) => {
-    const unit = units.find((u) => u.id === c.unit_id);
-    const property = unit
-      ? properties.find((p) => p.id === unit.property_id)
-      : undefined;
-    return { ...c, unit, property };
-  });
+export default async function ContractsPage() {
+  const contracts = await getContracts();
 
   return (
     <>
@@ -53,32 +47,44 @@ export default function ContractsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light">
-              {contractsWithInfo.map((c) => {
-                const isExpiring = c.end_date
-                  ? (() => {
-                      const diff =
-                        (new Date(c.end_date).getTime() - Date.now()) /
-                        (1000 * 60 * 60 * 24);
-                      return diff > 0 && diff <= 90;
-                    })()
-                  : false;
+              {contracts.map((c: Record<string, any>) => {
+                const remainingDays = c.end_date
+                  ? Math.ceil(
+                      (new Date(c.end_date).getTime() - Date.now()) /
+                      (1000 * 60 * 60 * 24)
+                    )
+                  : null;
+                const isExpiring = remainingDays !== null && remainingDays > 0 && remainingDays <= 90;
+                const urgencyColor = remainingDays !== null && remainingDays > 0
+                  ? remainingDays <= 30
+                    ? "text-danger"
+                    : remainingDays <= 60
+                      ? "text-warning"
+                      : remainingDays <= 90
+                        ? "text-warning/70"
+                        : ""
+                  : "";
 
                 return (
-                  <tr key={c.id} className="hover:bg-bg-secondary/30 transition-colors cursor-pointer">
+                  <tr key={c.id} className={`hover:bg-bg-secondary/30 transition-colors cursor-pointer ${remainingDays !== null && remainingDays <= 30 && remainingDays > 0 ? "bg-danger/5" : ""}`}>
                     <td className="px-5 py-3 font-medium">{c.tenant?.name}</td>
                     <td className="px-5 py-3">
-                      {c.property?.name} {c.unit?.unit_number}
+                      {c.unit?.property?.name} {c.unit?.unit_number}
                     </td>
                     <td className="px-5 py-3">
                       <StatusBadge status={c.contract_type} />
                     </td>
                     <td className="px-5 py-3">{c.start_date}</td>
-                    <td className={`px-5 py-3 ${isExpiring ? "text-warning font-medium" : ""}`}>
-                      {c.end_date || "—"}
-                      {isExpiring && <span className="ml-1 text-xs">※間近</span>}
+                    <td className={`px-5 py-3 ${isExpiring ? "font-medium" : ""}`}>
+                      <div>{c.end_date || "—"}</div>
+                      {isExpiring && (
+                        <span className={`text-xs font-semibold ${urgencyColor}`}>
+                          あと{remainingDays}日
+                        </span>
+                      )}
                     </td>
-                    <td className="px-5 py-3 text-right">¥{c.rent.toLocaleString()}</td>
-                    <td className="px-5 py-3 text-right">¥{c.management_fee.toLocaleString()}</td>
+                    <td className="px-5 py-3 text-right">¥{Number(c.rent).toLocaleString()}</td>
+                    <td className="px-5 py-3 text-right">¥{Number(c.management_fee).toLocaleString()}</td>
                     <td className="px-5 py-3">
                       <StatusBadge status={c.status} />
                     </td>

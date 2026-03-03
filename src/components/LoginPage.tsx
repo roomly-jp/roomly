@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Building, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -17,9 +19,11 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const success = await login(email, password);
-      if (!success) {
+      const result = await login(email, password);
+      if (result.error) {
         setError("メールアドレスまたはパスワードが正しくありません");
+      } else {
+        router.push("/");
       }
     } catch {
       setError("ログインに失敗しました");
@@ -138,10 +142,6 @@ export default function LoginPage() {
               {loading ? "ログイン中..." : "ログイン"}
             </button>
           </form>
-
-          <p className="mt-6 text-center text-xs text-text-muted">
-            デモ用: 任意のメール・パスワードでログインできます
-          </p>
         </div>
       </div>
     </div>

@@ -1,9 +1,11 @@
 import { Plus } from "lucide-react";
-import { inquiries } from "@/lib/mock-data";
+import { getInquiries } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 
-export default function InquiriesPage() {
+export default async function InquiriesPage() {
+  const inquiries = await getInquiries();
+
   return (
     <>
       <PageHeader
@@ -30,13 +32,13 @@ export default function InquiriesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light">
-              {inquiries.map((inq) => (
+              {inquiries.map((inq: Record<string, any>) => (
                 <tr key={inq.id} className="hover:bg-bg-secondary/30 transition-colors cursor-pointer">
                   <td className="px-5 py-3 font-medium">{inq.title}</td>
                   <td className="px-5 py-3"><StatusBadge status={inq.inquiry_type} /></td>
                   <td className="px-5 py-3"><StatusBadge status={inq.priority} /></td>
                   <td className="px-5 py-3"><StatusBadge status={inq.status} /></td>
-                  <td className="px-5 py-3">{inq.created_at}</td>
+                  <td className="px-5 py-3">{inq.created_at?.slice(0, 10)}</td>
                 </tr>
               ))}
             </tbody>

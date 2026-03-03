@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface User {
   id: string;
@@ -13,51 +15,83 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<{ error?: string }>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
-  login: async () => false,
-  logout: () => {},
+  login: async () => ({}),
+  logout: async () => {},
 });
 
-// モックユーザー
-const MOCK_USER: User = {
-  id: "user-1",
-  name: "山田 太郎",
-  email: "yamada@sample-estate.co.jp",
-  role: "admin",
-  company_id: "co-1",
-};
+const supabase = createClient();
+
+// Supabase Auth ユーザーから public.users の情報を取得
+async function fetchProfile(authUser: SupabaseUser): Promise<User | null> {
+  const { data } = await supabase
+    .from("users")
+    .select("id, name, email, role, company_id")
+    .eq("id", authUser.id)
+    .single();
+
+  if (!data) return null;
+  return {
+    id: data.id,
+    name: data.name,
+    email: data.email,
+    role: data.role,
+    company_id: data.company_id,
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("auth-user");
-    if (saved) {
-      setUser(JSON.parse(saved));
-    }
-    setIsLoading(false);
+    // 初回: 既存セッションを確認
+    supabase.auth.getUser().then(async ({ data: { user: authUser } }) => {
+      if (authUser) {
+        const profile = await fetchProfile(authUser);
+        setUser(profile);
+      }
+      setIsLoading(false);
+    });
+
+    // Auth 状態変更を購読
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        const profile = await fetchProfile(session.user);
+        setUser(profile);
+      } else if (event === "SIGNED_OUT") {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // モック認証（実際にはSupabase Authを使う）
-    if (email && password) {
-      setUser(MOCK_USER);
-      localStorage.setItem("auth-user", JSON.stringify(MOCK_USER));
-      return true;
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ error?: string }> => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      return { error: error.message };
     }
-    return false;
+    return {};
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem("auth-user");
   };
 
   return (

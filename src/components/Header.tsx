@@ -205,7 +205,9 @@ export default function Header() {
               </div>
               <div className="border-t border-border py-1">
                 <button
-                  onClick={logout}
+                  onClick={async () => {
+                    await logout();
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger-bg transition-colors"
                 >
                   <LogOut size={16} />

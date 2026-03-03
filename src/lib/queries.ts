@@ -1,0 +1,298 @@
+import { createClient } from "@/lib/supabase-server";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type Row = any;
+
+// 物件一覧（オーナー名・部屋情報付き）
+export async function getProperties() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("properties")
+    .select("*, owner:owners(id, name), units(id, status, rent)")
+    .order("name");
+  if (error) throw error;
+  return (data ?? []) as Row[];
+}
+
+// 物件詳細（部屋一覧 + アクティブ契約付き）
+export async function getPropertyDetail(id: string) {
+  const supabase = await createClient();
+
+  const { data: property, error } = await supabase
+    .from("properties")
+    .select("*, owner:owners(id, name)")
+    .eq("id", id)
+    .single();
+  if (error || !property) return null;
+
+  const { data: units } = await supabase
+    .from("units")
+    .select("*")
+    .eq("property_id", id)
+    .order("unit_number");
+
+  const unitIds = (units ?? []).map((u: Row) => u.id);
+  let contracts: Row[] = [];
+  if (unitIds.length > 0) {
+    const { data } = await supabase
+      .from("contracts")
+      .select("id, unit_id, tenant:tenants(name)")
+      .eq("status", "active")
+      .in("unit_id", unitIds);
+    contracts = data ?? [];
+  }
+
+  return { property, units: units ?? [], contracts };
+}
+
+// 入居者一覧（アクティブ契約・部屋・物件情報付き）
+export async function getTenantsWithInfo() {
+  const supabase = await createClient();
+
+  const [tenantsRes, contractsRes] = await Promise.all([
+    supabase.from("tenants").select("*").order("name"),
+    supabase
+      .from("contracts")
+      .select(
+        "id, tenant_id, unit_id, rent, status, unit:units(unit_number, property:properties(name))"
+      )
+      .eq("status", "active"),
+  ]);
+
+  const tenants = (tenantsRes.data ?? []) as Row[];
+  const contracts = (contractsRes.data ?? []) as Row[];
+
+  return tenants.map((t: Row) => {
+    const contract = contracts.find((c: Row) => c.tenant_id === t.id);
+    return { ...t, contract: contract ?? null };
+  });
+}
+
+// 契約一覧（入居者・部屋・物件付き）
+export async function getContracts() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("contracts")
+    .select(
+      "*, tenant:tenants(name), unit:units(unit_number, property:properties(name))"
+    )
+    .order("start_date", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Row[];
+}
+
+// 家賃請求一覧（契約・入居者・物件付き）
+export async function getRentBillings() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("rent_billings")
+    .select(
+      "*, contract:contracts(id, tenant:tenants(name), unit:units(unit_number, property:properties(name)))"
+    )
+    .order("billing_month", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Row[];
+}
+
+// 修繕依頼一覧（物件・部屋付き）
+export async function getMaintenanceRequests() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("maintenance_requests")
+    .select("*, property:properties(name), unit:units(unit_number)")
+    .order("reported_date", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Row[];
+}
+
+// 問い合わせ一覧
+export async function getInquiries() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("inquiries")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Row[];
+}
+
+// オーナー一覧（物件・部屋付き）
+export async function getOwners() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("owners")
+    .select("*, properties(id, name, units(id, status, rent))")
+    .order("name");
+  if (error) throw error;
+  return (data ?? []) as Row[];
+}
+
+// 経費一覧（物件・部屋・オーナー付き）
+export async function getExpenses() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("expenses")
+    .select(
+      "*, property:properties(name), unit:units(unit_number), owner:owners(name)"
+    )
+    .order("expense_date", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Row[];
+}
+
+// 会社情報
+export async function getCompany() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("companies")
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data as Row;
+}
+
+// ダッシュボード用データ
+export async function getDashboardData() {
+  const supabase = await createClient();
+
+  const [
+    { data: properties },
+    { data: units },
+    { data: billings },
+    { data: maintenance },
+    { data: inquiries },
+    { data: contracts },
+    { data: pipelineUnits },
+  ] = await Promise.all([
+    supabase.from("properties").select("id"),
+    supabase.from("units").select("id, status, rent"),
+    supabase
+      .from("rent_billings")
+      .select("*, contract:contracts(id, tenant:tenants(name))")
+      .order("billing_month", { ascending: false }),
+    supabase
+      .from("maintenance_requests")
+      .select("*, property:properties(name)")
+      .order("reported_date", { ascending: false }),
+    supabase
+      .from("inquiries")
+      .select("*")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("contracts")
+      .select(
+        "*, tenant:tenants(name), unit:units(unit_number, property:properties(name))"
+      )
+      .eq("status", "active"),
+    supabase
+      .from("units")
+      .select("id, unit_number, status, rent, property:properties(name)")
+      .in("status", ["maintenance", "vacant"]),
+  ]);
+
+  const allUnits = (units ?? []) as Row[];
+  const allBillings = (billings ?? []) as Row[];
+  const allMaintenance = (maintenance ?? []) as Row[];
+  const allInquiries = (inquiries ?? []) as Row[];
+  const allContracts = (contracts ?? []) as Row[];
+  const allPipelineUnits = (pipelineUnits ?? []) as Row[];
+
+  const totalUnits = allUnits.length;
+  const occupiedUnits = allUnits.filter(
+    (u: Row) => u.status === "occupied"
+  ).length;
+  const vacantUnits = allUnits.filter(
+    (u: Row) => u.status === "vacant"
+  ).length;
+
+  const totalExpected = allBillings.reduce(
+    (s: number, b: Row) => s + Number(b.total_amount),
+    0
+  );
+  const totalReceived = allBillings
+    .filter((b: Row) => b.status === "paid")
+    .reduce((s: number, b: Row) => s + Number(b.total_amount), 0);
+
+  const overdueBillings = allBillings.filter(
+    (b: Row) => b.status === "overdue"
+  );
+  const overdueAmount = overdueBillings.reduce(
+    (s: number, b: Row) => s + Number(b.total_amount),
+    0
+  );
+
+  const activeMaintenance = allMaintenance.filter(
+    (m: Row) => m.status === "open" || m.status === "in_progress"
+  );
+  const openInquiries = allInquiries.filter(
+    (i: Row) => i.status === "open" || i.status === "in_progress"
+  );
+
+  const now = new Date();
+  const expiringContracts = allContracts.filter((c: Row) => {
+    if (!c.end_date) return false;
+    const end = new Date(c.end_date);
+    const diff = (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+    return diff > 0 && diff <= 90;
+  });
+
+  return {
+    stats: {
+      total_properties: (properties ?? []).length,
+      total_units: totalUnits,
+      occupied_units: occupiedUnits,
+      vacant_units: vacantUnits,
+      occupancy_rate:
+        totalUnits > 0
+          ? Math.round((occupiedUnits / totalUnits) * 1000) / 10
+          : 0,
+      total_rent_expected: totalExpected,
+      total_rent_received: totalReceived,
+      collection_rate:
+        totalExpected > 0
+          ? Math.round((totalReceived / totalExpected) * 1000) / 10
+          : 0,
+      overdue_count: overdueBillings.length,
+      overdue_amount: overdueAmount,
+      open_maintenance: activeMaintenance.length,
+      open_inquiries: openInquiries.length,
+      expiring_contracts: expiringContracts.length,
+    },
+    overdueBillings,
+    activeMaintenance,
+    expiringContracts,
+    recentInquiries: openInquiries,
+    maintenanceUnits: allPipelineUnits.filter((u: Row) => u.status === "maintenance"),
+    vacantUnits: allPipelineUnits.filter((u: Row) => u.status === "vacant"),
+  };
+}
+
+// バッジカウント + 会社設定（Sidebar用API）
+export async function getBadgeCounts() {
+  const supabase = await createClient();
+
+  const [overdueRes, maintenanceRes, inquiriesRes, companyRes] =
+    await Promise.all([
+      supabase
+        .from("rent_billings")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "overdue"),
+      supabase
+        .from("maintenance_requests")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["open", "in_progress"]),
+      supabase
+        .from("inquiries")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["open", "in_progress"]),
+      supabase.from("companies").select("usage_type").single(),
+    ]);
+
+  return {
+    "/rent": overdueRes.count ?? 0,
+    "/maintenance": maintenanceRes.count ?? 0,
+    "/inquiries": inquiriesRes.count ?? 0,
+    usage_type:
+      (companyRes.data?.usage_type as string) ?? "management_company",
+  };
+}

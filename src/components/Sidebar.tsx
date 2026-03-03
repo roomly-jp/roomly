@@ -12,6 +12,7 @@ import {
   Wrench,
   MessageSquare,
   UserCircle,
+  Receipt,
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
@@ -19,8 +20,8 @@ import {
   X,
   Building,
 } from "lucide-react";
-import { maintenanceRequests, rentBillings, inquiries } from "@/lib/mock-data";
 
+// managementOnly: 管理会社モードでのみ表示
 const navItems = [
   { href: "/", label: "ダッシュボード", icon: LayoutDashboard },
   { href: "/properties", label: "物件管理", icon: Building2 },
@@ -29,31 +30,34 @@ const navItems = [
   { href: "/rent", label: "家賃管理", icon: Banknote },
   { href: "/maintenance", label: "修繕管理", icon: Wrench },
   { href: "/inquiries", label: "問い合わせ", icon: MessageSquare },
-  { href: "/owners", label: "オーナー管理", icon: UserCircle },
+  { href: "/expenses", label: "経費管理", icon: Receipt },
+  { href: "/owners", label: "オーナー管理", icon: UserCircle, managementOnly: true as const },
   { href: "/settings", label: "設定", icon: Settings },
 ];
-
-// バッジカウント
-function getBadgeCounts(): Record<string, number> {
-  const overdueRent = rentBillings.filter((b) => b.status === "overdue").length;
-  const openMaintenance = maintenanceRequests.filter(
-    (m) => m.status === "open" || m.status === "in_progress"
-  ).length;
-  const openInquiries = inquiries.filter(
-    (i) => i.status === "open" || i.status === "in_progress"
-  ).length;
-  return {
-    "/rent": overdueRent,
-    "/maintenance": openMaintenance,
-    "/inquiries": openInquiries,
-  };
-}
 
 export default function Sidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const badgeCounts = getBadgeCounts();
+  const [badgeCounts, setBadgeCounts] = useState<Record<string, number>>({});
+  const [usageType, setUsageType] = useState<string>("management_company");
+
+  // バッジカウント + 利用形態を API から取得
+  useEffect(() => {
+    fetch("/api/badge-counts")
+      .then((res) => res.json())
+      .then((data) => {
+        const { usage_type, ...counts } = data;
+        setBadgeCounts(counts);
+        if (usage_type) setUsageType(usage_type);
+      })
+      .catch(() => {});
+  }, [pathname]);
+
+  const isSelfManaged = usageType === "self_managed";
+  const filteredNavItems = navItems.filter(
+    (item) => !("managementOnly" in item && item.managementOnly && isSelfManaged)
+  );
 
   // localStorageから折りたたみ状態を復元
   useEffect(() => {
@@ -102,7 +106,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
       {/* ナビゲーション */}
       <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
         <div className="space-y-0.5 px-2">
-          {navItems.map((item) => {
+          {filteredNavItems.map((item) => {
             const isActive =
               item.href === "/"
                 ? pathname === "/"

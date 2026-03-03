@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Plus, Building2, MapPin } from "lucide-react";
-import { properties, units } from "@/lib/mock-data";
+import { getProperties } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 
-export default function PropertiesPage() {
+export default async function PropertiesPage() {
+  const properties = await getProperties();
+
   return (
     <>
       <PageHeader
@@ -19,11 +21,11 @@ export default function PropertiesPage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {properties.map((prop) => {
-          const propUnits = units.filter((u) => u.property_id === prop.id);
-          const occupied = propUnits.filter((u) => u.status === "occupied").length;
-          const vacant = propUnits.filter((u) => u.status === "vacant").length;
-          const totalRent = propUnits.reduce((sum, u) => sum + u.rent, 0);
+        {properties.map((prop: Record<string, any>) => {
+          const propUnits = prop.units || [];
+          const occupied = propUnits.filter((u: any) => u.status === "occupied").length;
+          const vacant = propUnits.filter((u: any) => u.status === "vacant").length;
+          const totalRent = propUnits.reduce((sum: number, u: any) => sum + Number(u.rent), 0);
           const occupancyRate = propUnits.length > 0 ? Math.round((occupied / propUnits.length) * 100) : 0;
 
           return (

@@ -1,12 +1,14 @@
 import { Plus } from "lucide-react";
-import { maintenanceRequests } from "@/lib/mock-data";
+import { getMaintenanceRequests } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 
-export default function MaintenancePage() {
-  const sorted = [...maintenanceRequests].sort((a, b) => {
-    const priorityOrder = { urgent: 0, high: 1, normal: 2, low: 3 };
-    return priorityOrder[a.priority] - priorityOrder[b.priority];
+export default async function MaintenancePage() {
+  const maintenanceRequests = await getMaintenanceRequests();
+
+  const sorted = [...maintenanceRequests].sort((a: any, b: any) => {
+    const priorityOrder: Record<string, number> = { urgent: 0, high: 1, normal: 2, low: 3 };
+    return (priorityOrder[a.priority] ?? 4) - (priorityOrder[b.priority] ?? 4);
   });
 
   return (
@@ -51,7 +53,7 @@ export default function MaintenancePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light">
-              {sorted.map((m) => {
+              {sorted.map((m: Record<string, any>) => {
                 const categoryLabels: Record<string, string> = {
                   plumbing: "水回り",
                   electrical: "電気",
@@ -68,14 +70,14 @@ export default function MaintenancePage() {
                   >
                     <td className="px-5 py-3 font-medium">{m.title}</td>
                     <td className="px-5 py-3 text-text-secondary">{m.property?.name}</td>
-                    <td className="px-5 py-3">{m.unit_id ? m.unit_id.replace("unit-", "") : "共用部"}</td>
+                    <td className="px-5 py-3">{m.unit?.unit_number || "共用部"}</td>
                     <td className="px-5 py-3 text-text-secondary">{categoryLabels[m.category] || m.category}</td>
                     <td className="px-5 py-3"><StatusBadge status={m.priority} /></td>
                     <td className="px-5 py-3"><StatusBadge status={m.status} /></td>
                     <td className="px-5 py-3">{m.reported_date}</td>
                     <td className="px-5 py-3 text-text-secondary">{m.vendor_name || "—"}</td>
                     <td className="px-5 py-3 text-right">
-                      {m.estimated_cost ? `¥${m.estimated_cost.toLocaleString()}` : "—"}
+                      {m.estimated_cost ? `¥${Number(m.estimated_cost).toLocaleString()}` : "—"}
                     </td>
                   </tr>
                 );

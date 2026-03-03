@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Building2 } from "lucide-react";
-import { properties, units, contracts } from "@/lib/mock-data";
+import { getPropertyDetail } from "@/lib/queries";
 import StatusBadge from "@/components/StatusBadge";
 
 export default async function PropertyDetailPage({
@@ -10,11 +10,11 @@ export default async function PropertyDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const property = properties.find((p) => p.id === id);
-  if (!property) notFound();
+  const result = await getPropertyDetail(id);
+  if (!result) notFound();
 
-  const propUnits = units.filter((u) => u.property_id === id);
-  const occupied = propUnits.filter((u) => u.status === "occupied").length;
+  const { property, units, contracts } = result;
+  const occupied = units.filter((u: any) => u.status === "occupied").length;
 
   return (
     <>
@@ -43,7 +43,7 @@ export default async function PropertyDetailPage({
         {[
           { label: "構造", value: `${property.structure} ${property.floors}F` },
           { label: "築年", value: `${property.built_year}年（築${new Date().getFullYear() - (property.built_year || 0)}年）` },
-          { label: "入居率", value: `${propUnits.length > 0 ? Math.round((occupied / propUnits.length) * 100) : 0}%` },
+          { label: "入居率", value: `${units.length > 0 ? Math.round((occupied / units.length) * 100) : 0}%` },
           { label: "オーナー", value: property.owner?.name || "—" },
         ].map((item) => (
           <div key={item.label} className="card p-4">
@@ -56,7 +56,7 @@ export default async function PropertyDetailPage({
       {/* 部屋一覧 */}
       <div className="card overflow-hidden">
         <div className="px-5 py-4 border-b border-border">
-          <h2 className="font-semibold">部屋一覧（{propUnits.length}戸）</h2>
+          <h2 className="font-semibold">部屋一覧（{units.length}戸）</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -73,18 +73,18 @@ export default async function PropertyDetailPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light">
-              {propUnits.map((unit) => {
+              {units.map((unit: any) => {
                 const contract = contracts.find(
-                  (c) => c.unit_id === unit.id && c.status === "active"
+                  (c: any) => c.unit_id === unit.id
                 );
                 return (
                   <tr key={unit.id} className="hover:bg-bg-secondary/30 transition-colors">
                     <td className="px-5 py-3 font-medium">{unit.unit_number}</td>
                     <td className="px-5 py-3">{unit.floor}F</td>
                     <td className="px-5 py-3">{unit.layout}</td>
-                    <td className="px-5 py-3">{unit.area_sqm}m²</td>
-                    <td className="px-5 py-3 text-right">¥{unit.rent.toLocaleString()}</td>
-                    <td className="px-5 py-3 text-right">¥{unit.management_fee.toLocaleString()}</td>
+                    <td className="px-5 py-3">{Number(unit.area_sqm)}m²</td>
+                    <td className="px-5 py-3 text-right">¥{Number(unit.rent).toLocaleString()}</td>
+                    <td className="px-5 py-3 text-right">¥{Number(unit.management_fee).toLocaleString()}</td>
                     <td className="px-5 py-3"><StatusBadge status={unit.status} /></td>
                     <td className="px-5 py-3 text-text-secondary">{contract?.tenant?.name || "—"}</td>
                   </tr>
