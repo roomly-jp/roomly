@@ -20,36 +20,36 @@ export default async function RentPage() {
       <PageHeader title="家賃管理" description="家賃請求・入金状況" />
 
       {/* サマリー */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="card p-5">
-          <p className="text-xs text-text-muted mb-1">請求総額</p>
-          <p className="text-xl font-bold tracking-tight">¥{totalExpected.toLocaleString()}</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div className="card p-4">
+          <p className="text-[11px] text-text-muted uppercase tracking-wider mb-2">請求総額</p>
+          <p className="text-xl font-semibold tabular-nums">¥{totalExpected.toLocaleString()}</p>
         </div>
-        <div className="card p-5">
-          <p className="text-xs text-text-muted mb-1">入金済</p>
-          <p className="text-xl font-bold text-success tracking-tight">¥{totalPaid.toLocaleString()}</p>
+        <div className="card p-4">
+          <p className="text-[11px] text-text-muted uppercase tracking-wider mb-2">入金済</p>
+          <p className="text-xl font-semibold text-success tabular-nums">¥{totalPaid.toLocaleString()}</p>
         </div>
-        <div className="card p-5">
-          <p className="text-xs text-text-muted mb-1">回収率</p>
+        <div className="card p-4">
+          <p className="text-[11px] text-text-muted uppercase tracking-wider mb-2">回収率</p>
           <div className="flex items-end gap-2">
-            <p className="text-xl font-bold tracking-tight">{collectionRate}%</p>
-            <div className="flex-1 h-2 bg-bg-secondary rounded-full overflow-hidden mb-1.5">
+            <p className="text-xl font-semibold tabular-nums">{collectionRate}%</p>
+            <div className="flex-1 h-1 bg-bg-secondary rounded-full overflow-hidden mb-1.5">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-accent to-success"
+                className="h-full rounded-full bg-accent"
                 style={{ width: `${collectionRate}%` }}
               />
             </div>
           </div>
         </div>
-        <div className="card p-5">
-          <p className="text-xs text-text-muted mb-1">滞納</p>
-          <p className="text-xl font-bold text-danger tracking-tight">{overdueCount}件</p>
-          <p className="text-xs text-danger mt-0.5">¥{overdueAmount.toLocaleString()}</p>
+        <div className="card p-4 border-l-3 border-l-danger">
+          <p className="text-[11px] text-text-muted uppercase tracking-wider mb-2">滞納</p>
+          <p className="text-xl font-semibold text-danger tabular-nums">{overdueCount}件</p>
+          <p className="text-[12px] text-danger mt-0.5 tabular-nums">¥{overdueAmount.toLocaleString()}</p>
         </div>
       </div>
 
       {/* フィルター */}
-      <div className="flex gap-2 mb-5">
+      <div className="flex gap-1.5 mb-4">
         {["すべて", "入金済", "未入金", "滞納"].map((label) => (
           <button
             key={label}
@@ -62,37 +62,37 @@ export default async function RentPage() {
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-[13px]">
             <thead>
-              <tr className="text-left text-text-muted bg-bg-secondary/50">
-                <th className="px-5 py-3 font-medium">物件</th>
-                <th className="px-5 py-3 font-medium">部屋</th>
-                <th className="px-5 py-3 font-medium">入居者</th>
-                <th className="px-5 py-3 font-medium">対象月</th>
-                <th className="px-5 py-3 font-medium text-right">賃料</th>
-                <th className="px-5 py-3 font-medium text-right">管理費</th>
-                <th className="px-5 py-3 font-medium text-right">合計</th>
-                <th className="px-5 py-3 font-medium">支払期限</th>
-                <th className="px-5 py-3 font-medium">状態</th>
+              <tr className="text-left text-text-muted border-b border-border-light">
+                <th className="px-5 py-2.5 font-medium">物件</th>
+                <th className="px-5 py-2.5 font-medium">部屋</th>
+                <th className="px-5 py-2.5 font-medium">入居者</th>
+                <th className="px-5 py-2.5 font-medium">対象月</th>
+                <th className="px-5 py-2.5 font-medium text-right">賃料</th>
+                <th className="px-5 py-2.5 font-medium text-right">管理費</th>
+                <th className="px-5 py-2.5 font-medium text-right">合計</th>
+                <th className="px-5 py-2.5 font-medium">支払期限</th>
+                <th className="px-5 py-2.5 font-medium">状態</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-light">
+            <tbody>
               {billings.map((b: Record<string, any>) => (
                 <tr
                   key={b.id}
-                  className={`hover:bg-bg-secondary/30 transition-colors cursor-pointer ${
+                  className={`border-b border-border-light last:border-0 hover:bg-bg-secondary/30 transition-colors cursor-pointer ${
                     b.status === "overdue" ? "bg-danger/5" : ""
                   }`}
                 >
-                  <td className="px-5 py-3 text-text-secondary">{b.contract?.unit?.property?.name || "—"}</td>
-                  <td className="px-5 py-3">{b.contract?.unit?.unit_number || "—"}</td>
-                  <td className="px-5 py-3 font-medium">{b.contract?.tenant?.name || "—"}</td>
-                  <td className="px-5 py-3">{b.billing_month}</td>
-                  <td className="px-5 py-3 text-right">¥{Number(b.rent).toLocaleString()}</td>
-                  <td className="px-5 py-3 text-right">¥{Number(b.management_fee).toLocaleString()}</td>
-                  <td className="px-5 py-3 text-right font-medium">¥{Number(b.total_amount).toLocaleString()}</td>
-                  <td className="px-5 py-3">{b.due_date}</td>
-                  <td className="px-5 py-3"><StatusBadge status={b.status} /></td>
+                  <td className="px-5 py-2.5 text-text-secondary">{b.contract?.unit?.property?.name || "—"}</td>
+                  <td className="px-5 py-2.5">{b.contract?.unit?.unit_number || "—"}</td>
+                  <td className="px-5 py-2.5 font-medium">{b.contract?.tenant?.name || "—"}</td>
+                  <td className="px-5 py-2.5">{b.billing_month}</td>
+                  <td className="px-5 py-2.5 text-right tabular-nums">¥{Number(b.rent).toLocaleString()}</td>
+                  <td className="px-5 py-2.5 text-right tabular-nums">¥{Number(b.management_fee).toLocaleString()}</td>
+                  <td className="px-5 py-2.5 text-right font-medium tabular-nums">¥{Number(b.total_amount).toLocaleString()}</td>
+                  <td className="px-5 py-2.5">{b.due_date}</td>
+                  <td className="px-5 py-2.5"><StatusBadge status={b.status} /></td>
                 </tr>
               ))}
             </tbody>

@@ -18,14 +18,13 @@ export default async function MaintenancePage() {
         description={`${maintenanceRequests.length}件の修繕依頼`}
         action={
           <button className="btn-primary">
-            <Plus size={16} />
+            <Plus size={14} />
             依頼を登録
           </button>
         }
       />
 
-      {/* フィルター */}
-      <div className="flex gap-2 mb-5">
+      <div className="flex gap-1.5 mb-4">
         {["すべて", "未対応", "対応中", "完了"].map((label) => (
           <button
             key={label}
@@ -38,21 +37,21 @@ export default async function MaintenancePage() {
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-[13px]">
             <thead>
-              <tr className="text-left text-text-muted bg-bg-secondary/50">
-                <th className="px-5 py-3 font-medium">件名</th>
-                <th className="px-5 py-3 font-medium">物件</th>
-                <th className="px-5 py-3 font-medium">部屋</th>
-                <th className="px-5 py-3 font-medium">カテゴリ</th>
-                <th className="px-5 py-3 font-medium">優先度</th>
-                <th className="px-5 py-3 font-medium">状態</th>
-                <th className="px-5 py-3 font-medium">報告日</th>
-                <th className="px-5 py-3 font-medium">業者</th>
-                <th className="px-5 py-3 font-medium text-right">見積</th>
+              <tr className="text-left text-text-muted border-b border-border-light">
+                <th className="px-5 py-2.5 font-medium">件名</th>
+                <th className="px-5 py-2.5 font-medium">物件</th>
+                <th className="px-5 py-2.5 font-medium">部屋</th>
+                <th className="px-5 py-2.5 font-medium">カテゴリ</th>
+                <th className="px-5 py-2.5 font-medium">優先度</th>
+                <th className="px-5 py-2.5 font-medium">状態</th>
+                <th className="px-5 py-2.5 font-medium">報告日</th>
+                <th className="px-5 py-2.5 font-medium">業者</th>
+                <th className="px-5 py-2.5 font-medium text-right">見積</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-light">
+            <tbody>
               {sorted.map((m: Record<string, any>) => {
                 const categoryLabels: Record<string, string> = {
                   plumbing: "水回り",
@@ -64,19 +63,19 @@ export default async function MaintenancePage() {
                 return (
                   <tr
                     key={m.id}
-                    className={`hover:bg-bg-secondary/30 transition-colors cursor-pointer ${
+                    className={`border-b border-border-light last:border-0 hover:bg-bg-secondary/30 transition-colors cursor-pointer ${
                       m.priority === "urgent" ? "bg-danger/5" : ""
                     }`}
                   >
-                    <td className="px-5 py-3 font-medium">{m.title}</td>
-                    <td className="px-5 py-3 text-text-secondary">{m.property?.name}</td>
-                    <td className="px-5 py-3">{m.unit?.unit_number || "共用部"}</td>
-                    <td className="px-5 py-3 text-text-secondary">{categoryLabels[m.category] || m.category}</td>
-                    <td className="px-5 py-3"><StatusBadge status={m.priority} /></td>
-                    <td className="px-5 py-3"><StatusBadge status={m.status} /></td>
-                    <td className="px-5 py-3">{m.reported_date}</td>
-                    <td className="px-5 py-3 text-text-secondary">{m.vendor_name || "—"}</td>
-                    <td className="px-5 py-3 text-right">
+                    <td className="px-5 py-2.5 font-medium">{m.title}</td>
+                    <td className="px-5 py-2.5 text-text-secondary">{m.property?.name}</td>
+                    <td className="px-5 py-2.5">{m.unit?.unit_number || "共用部"}</td>
+                    <td className="px-5 py-2.5 text-text-secondary">{categoryLabels[m.category] || m.category}</td>
+                    <td className="px-5 py-2.5"><StatusBadge status={m.priority} /></td>
+                    <td className="px-5 py-2.5"><StatusBadge status={m.status} /></td>
+                    <td className="px-5 py-2.5">{m.reported_date}</td>
+                    <td className="px-5 py-2.5 text-text-secondary">{m.vendor_name || "—"}</td>
+                    <td className="px-5 py-2.5 text-right tabular-nums">
                       {m.estimated_cost ? `¥${Number(m.estimated_cost).toLocaleString()}` : "—"}
                     </td>
                   </tr>

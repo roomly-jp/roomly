@@ -5,7 +5,6 @@ import PageHeader from "@/components/PageHeader";
 export default async function OwnersPage() {
   const [owners, expenses] = await Promise.all([getOwners(), getExpenses()]);
 
-  // オーナー負担経費をオーナーIDでグルーピング
   const ownerExpenses = expenses
     .filter((e: any) => e.is_owner_charge && e.owner_id)
     .reduce((acc: Record<string, number>, e: any) => {
@@ -13,7 +12,6 @@ export default async function OwnersPage() {
       return acc;
     }, {} as Record<string, number>);
 
-  // 物件ごとの経費もグルーピング
   const propertyExpenses = expenses
     .filter((e: any) => e.is_owner_charge)
     .reduce((acc: Record<string, number>, e: any) => {
@@ -31,7 +29,6 @@ export default async function OwnersPage() {
     const managementFee = Math.round(totalRent * (Number(o.management_fee_rate) / 100));
     const expenseDeducted = ownerExpenses[o.id] || 0;
 
-    // 物件別の内訳を生成
     const propertyBreakdown = ownerProps.map((p: any) => {
       const pUnits = (p.units || []).filter((u: any) => u.status === "occupied");
       const pRent = pUnits.reduce((s: number, u: any) => s + Number(u.rent), 0);
@@ -69,156 +66,157 @@ export default async function OwnersPage() {
         description={`${owners.length}名のオーナー`}
         action={
           <button className="btn-primary">
-            <Plus size={16} />
+            <Plus size={14} />
             オーナーを追加
           </button>
         }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
         {ownersWithInfo.map((o: Record<string, any>) => (
-          <div key={o.id} className="card card-interactive p-5 cursor-pointer">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-full gradient-accent flex items-center justify-center text-white font-semibold">
+          <div key={o.id} className="card card-interactive p-4 cursor-pointer">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded bg-accent/10 flex items-center justify-center text-accent text-[13px] font-semibold">
                 {o.name.charAt(0)}
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-lg">{o.name}</h3>
-                <span className="text-xs text-text-muted">手数料 {Number(o.management_fee_rate)}%</span>
+                <h3 className="text-[14px] font-semibold">{o.name}</h3>
+                <span className="text-[11px] text-text-muted">手数料 {Number(o.management_fee_rate)}%</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 text-center mb-5">
-              <div className="p-2.5 rounded-lg bg-bg-secondary">
-                <p className="text-[11px] text-text-muted">物件数</p>
-                <p className="text-lg font-bold">{o.propertyCount}</p>
+            <div className="flex gap-2 text-center mb-4">
+              <div className="flex-1 py-1.5 rounded bg-bg-secondary">
+                <p className="text-[10px] text-text-muted">物件数</p>
+                <p className="text-[15px] font-semibold tabular-nums">{o.propertyCount}</p>
               </div>
-              <div className="p-2.5 rounded-lg bg-bg-secondary">
-                <p className="text-[11px] text-text-muted">総戸数</p>
-                <p className="text-lg font-bold">{o.unitCount}</p>
+              <div className="flex-1 py-1.5 rounded bg-bg-secondary">
+                <p className="text-[10px] text-text-muted">総戸数</p>
+                <p className="text-[15px] font-semibold tabular-nums">{o.unitCount}</p>
               </div>
-              <div className="p-2.5 rounded-lg bg-bg-secondary">
-                <p className="text-[11px] text-text-muted">入居</p>
-                <p className="text-lg font-bold text-success">{o.occupiedCount}</p>
+              <div className="flex-1 py-1.5 rounded bg-bg-secondary">
+                <p className="text-[10px] text-text-muted">入居</p>
+                <p className="text-[15px] font-semibold text-success tabular-nums">{o.occupiedCount}</p>
               </div>
             </div>
 
-            <div className="border-t border-border-light pt-4 space-y-2 text-sm">
+            <div className="border-t border-border-light pt-3 space-y-1.5 text-[13px]">
               <div className="flex justify-between">
                 <span className="text-text-muted">家賃収入</span>
-                <span className="font-medium">¥{o.totalRent.toLocaleString()}</span>
+                <span className="font-medium tabular-nums">¥{o.totalRent.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-text-muted">管理手数料</span>
-                <span className="text-danger font-medium">-¥{o.managementFee.toLocaleString()}</span>
+                <span className="text-danger font-medium tabular-nums">-¥{o.managementFee.toLocaleString()}</span>
               </div>
               {o.expenseDeducted > 0 && (
                 <div className="flex justify-between">
                   <span className="text-text-muted">経費控除</span>
-                  <span className="text-warning font-medium">-¥{o.expenseDeducted.toLocaleString()}</span>
+                  <span className="text-warning font-medium tabular-nums">-¥{o.expenseDeducted.toLocaleString()}</span>
                 </div>
               )}
               <div className="flex justify-between pt-2 border-t border-border-light">
                 <span className="font-medium">送金額</span>
-                <span className="font-bold text-accent text-lg">¥{o.netAmount.toLocaleString()}</span>
+                <span className="font-semibold text-accent text-[15px] tabular-nums">¥{o.netAmount.toLocaleString()}</span>
               </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-3 text-xs text-text-muted">
-              {o.phone && <span>{o.phone}</span>}
-              {o.email && <span>{o.email}</span>}
-            </div>
+            {(o.phone || o.email) && (
+              <div className="mt-3 flex items-center gap-3 text-[11px] text-text-muted">
+                {o.phone && <span>{o.phone}</span>}
+                {o.email && <span>{o.email}</span>}
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {/* 月次送金明細 */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-4">月次送金明細（物件別内訳）</h2>
+        <h2 className="text-[14px] font-semibold mb-3">月次送金明細（物件別内訳）</h2>
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-[13px]">
               <thead>
-                <tr className="text-left text-text-muted bg-bg-secondary/50">
-                  <th className="px-5 py-3 font-medium">オーナー</th>
-                  <th className="px-5 py-3 font-medium">物件</th>
-                  <th className="px-5 py-3 font-medium text-center">入居/総戸</th>
-                  <th className="px-5 py-3 font-medium text-right">家賃収入</th>
-                  <th className="px-5 py-3 font-medium text-right">管理手数料</th>
-                  <th className="px-5 py-3 font-medium text-right">経費控除</th>
-                  <th className="px-5 py-3 font-medium text-right">送金額</th>
+                <tr className="text-left text-text-muted border-b border-border-light">
+                  <th className="px-5 py-2.5 font-medium">オーナー</th>
+                  <th className="px-5 py-2.5 font-medium">物件</th>
+                  <th className="px-5 py-2.5 font-medium text-center">入居/総戸</th>
+                  <th className="px-5 py-2.5 font-medium text-right">家賃収入</th>
+                  <th className="px-5 py-2.5 font-medium text-right">管理手数料</th>
+                  <th className="px-5 py-2.5 font-medium text-right">経費控除</th>
+                  <th className="px-5 py-2.5 font-medium text-right">送金額</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-light">
+              <tbody>
                 {ownersWithInfo.map((o: Record<string, any>) => (
                   <>
                     {o.propertyBreakdown.map(
                       (p: Record<string, any>, i: number) => (
                         <tr
                           key={`${o.id}-${p.propertyId}`}
-                          className="hover:bg-bg-secondary/30 transition-colors"
+                          className="border-b border-border-light hover:bg-bg-secondary/30 transition-colors"
                         >
                           {i === 0 && (
                             <td
-                              className="px-5 py-3 font-medium"
+                              className="px-5 py-2.5 font-medium"
                               rowSpan={o.propertyBreakdown.length + 1}
                             >
                               <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-full gradient-accent flex items-center justify-center text-white text-xs font-semibold">
+                                <div className="w-6 h-6 rounded bg-accent/10 flex items-center justify-center text-accent text-[10px] font-semibold">
                                   {o.name.charAt(0)}
                                 </div>
                                 <div>
                                   <div>{o.name}</div>
-                                  <div className="text-[11px] text-text-muted font-normal">
+                                  <div className="text-[10px] text-text-muted font-normal">
                                     手数料 {Number(o.management_fee_rate)}%
                                   </div>
                                 </div>
                               </div>
                             </td>
                           )}
-                          <td className="px-5 py-3 text-text-secondary">
+                          <td className="px-5 py-2.5 text-text-secondary">
                             {p.propertyName}
                           </td>
-                          <td className="px-5 py-3 text-center">
+                          <td className="px-5 py-2.5 text-center tabular-nums">
                             {p.occupiedCount}/{p.unitCount}
                           </td>
-                          <td className="px-5 py-3 text-right">
+                          <td className="px-5 py-2.5 text-right tabular-nums">
                             ¥{p.rent.toLocaleString()}
                           </td>
-                          <td className="px-5 py-3 text-right text-danger">
+                          <td className="px-5 py-2.5 text-right text-danger tabular-nums">
                             -¥{p.fee.toLocaleString()}
                           </td>
-                          <td className="px-5 py-3 text-right text-warning">
+                          <td className="px-5 py-2.5 text-right text-warning tabular-nums">
                             {p.expense > 0
                               ? `-¥${p.expense.toLocaleString()}`
                               : "—"}
                           </td>
-                          <td className="px-5 py-3 text-right font-medium">
+                          <td className="px-5 py-2.5 text-right font-medium tabular-nums">
                             ¥{p.net.toLocaleString()}
                           </td>
                         </tr>
                       )
                     )}
-                    {/* オーナー合計行 */}
                     <tr
                       key={`${o.id}-total`}
-                      className="bg-bg-secondary/30 font-semibold"
+                      className="bg-bg-secondary/30 font-medium border-b border-border"
                     >
-                      <td className="px-5 py-2.5 text-right text-text-muted text-xs" colSpan={2}>
+                      <td className="px-5 py-2 text-right text-text-muted text-[11px]" colSpan={2}>
                         合計
                       </td>
-                      <td className="px-5 py-2.5 text-right">
+                      <td className="px-5 py-2 text-right tabular-nums">
                         ¥{o.totalRent.toLocaleString()}
                       </td>
-                      <td className="px-5 py-2.5 text-right text-danger">
+                      <td className="px-5 py-2 text-right text-danger tabular-nums">
                         -¥{o.managementFee.toLocaleString()}
                       </td>
-                      <td className="px-5 py-2.5 text-right text-warning">
+                      <td className="px-5 py-2 text-right text-warning tabular-nums">
                         {o.expenseDeducted > 0
                           ? `-¥${o.expenseDeducted.toLocaleString()}`
                           : "—"}
                       </td>
-                      <td className="px-5 py-2.5 text-right text-accent">
+                      <td className="px-5 py-2 text-right text-accent tabular-nums">
                         ¥{o.netAmount.toLocaleString()}
                       </td>
                     </tr>

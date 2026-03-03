@@ -14,14 +14,12 @@ import {
   UserCircle,
   Receipt,
   Settings,
-  PanelLeftClose,
-  PanelLeftOpen,
+  ChevronsLeft,
+  ChevronsRight,
   Menu,
   X,
-  Building,
 } from "lucide-react";
 
-// managementOnly: 管理会社モードでのみ表示
 const navItems = [
   { href: "/", label: "ダッシュボード", icon: LayoutDashboard },
   { href: "/properties", label: "物件管理", icon: Building2 },
@@ -42,7 +40,6 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
   const [badgeCounts, setBadgeCounts] = useState<Record<string, number>>({});
   const [usageType, setUsageType] = useState<string>("management_company");
 
-  // バッジカウント + 利用形態を API から取得
   useEffect(() => {
     fetch("/api/badge-counts")
       .then((res) => res.json())
@@ -59,23 +56,19 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
     (item) => !("managementOnly" in item && item.managementOnly && isSelfManaged)
   );
 
-  // localStorageから折りたたみ状態を復元
   useEffect(() => {
     const saved = localStorage.getItem("sidebar-collapsed");
     if (saved !== null) setCollapsed(saved === "true");
   }, []);
 
-  // 折りたたみ状態をlocalStorageに保存
   useEffect(() => {
     localStorage.setItem("sidebar-collapsed", String(collapsed));
   }, [collapsed]);
 
-  // ページ遷移時にモバイルメニューを閉じる
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
-  // モバイルメニュー開閉時のスクロール制御
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -84,27 +77,19 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
   const sidebarContent = (
     <>
       {/* ロゴ */}
-      <div className="h-16 flex items-center px-4 border-b border-white/10">
-        {!collapsed && (
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 gradient-accent rounded-lg flex items-center justify-center">
-              <Building size={16} className="text-white" />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold tracking-wide">Roomly</span>
-              <span className="text-[10px] bg-white/15 px-1.5 py-0.5 rounded-full font-medium">Beta</span>
-            </div>
+      <div className="h-14 flex items-center px-4 border-b border-border">
+        {!collapsed ? (
+          <div className="flex items-center gap-2">
+            <span className="text-[15px] font-semibold tracking-wide text-text">Roomly</span>
+            <span className="text-[9px] bg-accent/10 text-accent px-1.5 py-0.5 rounded font-medium tracking-wider uppercase">Beta</span>
           </div>
-        )}
-        {collapsed && (
-          <div className="mx-auto w-8 h-8 gradient-accent rounded-lg flex items-center justify-center">
-            <Building size={16} className="text-white" />
-          </div>
+        ) : (
+          <span className="mx-auto text-sm font-bold text-accent">R</span>
         )}
       </div>
 
       {/* ナビゲーション */}
-      <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
+      <nav className="flex-1 py-2 overflow-y-auto overflow-x-hidden">
         <div className="space-y-0.5 px-2">
           {filteredNavItems.map((item) => {
             const isActive =
@@ -117,27 +102,30 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`tooltip-trigger flex items-center gap-3 py-2.5 text-[13px] rounded-lg transition-all duration-150 ${
+                className={`tooltip-trigger flex items-center gap-2.5 py-2 text-[13px] rounded transition-colors duration-100 ${
                   collapsed ? "justify-center px-0" : "px-3"
                 } ${
                   isActive
-                    ? "bg-white/15 text-white font-medium shadow-sm"
-                    : "text-white/60 hover:bg-white/8 hover:text-white/90"
+                    ? "bg-sidebar-active text-accent font-medium"
+                    : "text-text-secondary hover:bg-bg-secondary hover:text-text"
                 }`}
               >
-                <Icon size={18} className="shrink-0" />
+                {isActive && !collapsed && (
+                  <span className="absolute left-0 w-[3px] h-5 bg-accent rounded-r" />
+                )}
+                <Icon size={17} className="shrink-0" />
                 {!collapsed && (
                   <>
                     <span className="flex-1">{item.label}</span>
                     {badge && badge > 0 && (
-                      <span className="min-w-[20px] h-5 flex items-center justify-center px-1.5 text-[11px] font-semibold rounded-full bg-danger text-white">
+                      <span className="min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-medium rounded bg-danger/10 text-danger">
                         {badge}
                       </span>
                     )}
                   </>
                 )}
                 {collapsed && badge && badge > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-danger" />
+                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-danger" />
                 )}
                 {collapsed && (
                   <span className="tooltip">{item.label}</span>
@@ -149,25 +137,24 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
       </nav>
 
       {/* フッター */}
-      <div className="border-t border-white/10">
-        {/* 折りたたみトグル（デスクトップ） */}
+      <div className="border-t border-border">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden md:flex w-full items-center gap-3 px-4 py-3 text-white/50 hover:text-white/80 hover:bg-white/5 transition-all text-[13px]"
+          className="hidden md:flex w-full items-center gap-2.5 px-4 py-3 text-text-muted hover:text-text-secondary transition-colors text-[12px]"
         >
           {collapsed ? (
-            <PanelLeftOpen size={18} className="mx-auto" />
+            <ChevronsRight size={15} className="mx-auto" />
           ) : (
             <>
-              <PanelLeftClose size={18} />
-              <span>メニューを閉じる</span>
+              <ChevronsLeft size={15} />
+              <span>折りたたむ</span>
             </>
           )}
         </button>
         {!collapsed && (
-          <div className="px-4 py-3 text-[11px] text-white/30">
+          <div className="px-4 py-2.5 text-[11px] text-text-muted border-t border-border-light">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-white/50">
+              <div className="w-5 h-5 rounded bg-accent/10 flex items-center justify-center text-[9px] font-semibold text-accent">
                 S
               </div>
               <span>サンプル不動産管理</span>
@@ -175,8 +162,8 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
           </div>
         )}
         {collapsed && (
-          <div className="py-3 flex justify-center">
-            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-white/50">
+          <div className="py-2.5 flex justify-center border-t border-border-light">
+            <div className="w-5 h-5 rounded bg-accent/10 flex items-center justify-center text-[9px] font-semibold text-accent">
               S
             </div>
           </div>
@@ -187,12 +174,12 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* モバイル: ハンバーガーボタン */}
+      {/* モバイル: ハンバーガー */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-50 md:hidden p-2 rounded-lg bg-card border border-border shadow-md text-text-secondary hover:text-text transition-colors"
+        className="fixed top-3 left-3 z-50 md:hidden p-2 rounded bg-card shadow-sm text-text-secondary hover:text-text transition-colors"
       >
-        <Menu size={20} />
+        <Menu size={18} />
       </button>
 
       {/* モバイル: オーバーレイ */}
@@ -201,25 +188,25 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
         onClick={() => setMobileOpen(false)}
       />
 
-      {/* モバイル: ドロワーサイドバー */}
+      {/* モバイル: ドロワー */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-[280px] bg-primary text-white flex flex-col z-50 md:hidden transition-transform duration-300 ${
+        className={`fixed left-0 top-0 h-screen w-[240px] bg-sidebar-bg flex flex-col z-50 md:hidden transition-transform duration-200 border-r border-border ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <button
           onClick={() => setMobileOpen(false)}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+          className="absolute top-3.5 right-3 p-1 rounded text-text-muted hover:text-text transition-colors"
         >
-          <X size={18} />
+          <X size={16} />
         </button>
         {sidebarContent}
       </aside>
 
       {/* デスクトップ: サイドバー */}
       <aside
-        className={`fixed left-0 top-0 h-screen bg-primary text-white flex-col z-50 transition-[width] duration-200 ease-out hidden md:flex ${
-          collapsed ? "w-[72px]" : "w-64"
+        className={`fixed left-0 top-0 h-screen bg-sidebar-bg flex-col z-50 transition-[width] duration-200 ease-out hidden md:flex border-r border-border ${
+          collapsed ? "w-16" : "w-60"
         }`}
       >
         {sidebarContent}
@@ -230,11 +217,10 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
         {children}
       </div>
 
-      {/* マージン制御 */}
       <style>{`
         @media (min-width: 768px) {
           .min-h-screen.transition-\\[margin-left\\] {
-            margin-left: ${collapsed ? "72px" : "256px"};
+            margin-left: ${collapsed ? "64px" : "240px"};
           }
         }
       `}</style>

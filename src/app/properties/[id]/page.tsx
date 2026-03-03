@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Building2 } from "lucide-react";
+import { ArrowLeft, MapPin } from "lucide-react";
 import { getPropertyDetail } from "@/lib/queries";
 import StatusBadge from "@/components/StatusBadge";
 
@@ -18,28 +18,21 @@ export default async function PropertyDetailPage({
 
   return (
     <>
-      {/* ヘッダー */}
-      <div className="mb-8">
-        <Link href="/properties" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-accent mb-4 transition-colors">
-          <ArrowLeft size={14} />
+      <div className="mb-6">
+        <Link href="/properties" className="inline-flex items-center gap-1 text-[13px] text-text-muted hover:text-accent mb-3 transition-colors">
+          <ArrowLeft size={13} />
           物件一覧に戻る
         </Link>
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-accent-subtle flex items-center justify-center">
-            <Building2 size={24} className="text-accent" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">{property.name}</h1>
-            <p className="flex items-center gap-1 text-sm text-text-muted mt-0.5">
-              <MapPin size={14} />
-              {property.address}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-lg font-semibold">{property.name}</h1>
+          <p className="flex items-center gap-1 text-[13px] text-text-muted mt-0.5">
+            <MapPin size={12} />
+            {property.address}
+          </p>
         </div>
       </div>
 
-      {/* 物件情報 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         {[
           { label: "構造", value: `${property.structure} ${property.floors}F` },
           { label: "築年", value: `${property.built_year}年（築${new Date().getFullYear() - (property.built_year || 0)}年）` },
@@ -47,46 +40,45 @@ export default async function PropertyDetailPage({
           { label: "オーナー", value: property.owner?.name || "—" },
         ].map((item) => (
           <div key={item.label} className="card p-4">
-            <p className="text-xs text-text-muted mb-1">{item.label}</p>
-            <p className="font-semibold">{item.value}</p>
+            <p className="text-[11px] text-text-muted uppercase tracking-wider mb-1">{item.label}</p>
+            <p className="text-[14px] font-medium">{item.value}</p>
           </div>
         ))}
       </div>
 
-      {/* 部屋一覧 */}
       <div className="card overflow-hidden">
-        <div className="px-5 py-4 border-b border-border">
-          <h2 className="font-semibold">部屋一覧（{units.length}戸）</h2>
+        <div className="px-5 py-3 border-b border-border-light">
+          <h2 className="text-[13px] font-semibold">部屋一覧（{units.length}戸）</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-[13px]">
             <thead>
-              <tr className="text-left text-text-muted bg-bg-secondary/50">
-                <th className="px-5 py-3 font-medium">部屋番号</th>
-                <th className="px-5 py-3 font-medium">階</th>
-                <th className="px-5 py-3 font-medium">間取り</th>
-                <th className="px-5 py-3 font-medium">面積</th>
-                <th className="px-5 py-3 font-medium text-right">賃料</th>
-                <th className="px-5 py-3 font-medium text-right">管理費</th>
-                <th className="px-5 py-3 font-medium">状態</th>
-                <th className="px-5 py-3 font-medium">入居者</th>
+              <tr className="text-left text-text-muted border-b border-border-light">
+                <th className="px-5 py-2.5 font-medium">部屋番号</th>
+                <th className="px-5 py-2.5 font-medium">階</th>
+                <th className="px-5 py-2.5 font-medium">間取り</th>
+                <th className="px-5 py-2.5 font-medium">面積</th>
+                <th className="px-5 py-2.5 font-medium text-right">賃料</th>
+                <th className="px-5 py-2.5 font-medium text-right">管理費</th>
+                <th className="px-5 py-2.5 font-medium">状態</th>
+                <th className="px-5 py-2.5 font-medium">入居者</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-light">
+            <tbody>
               {units.map((unit: any) => {
                 const contract = contracts.find(
                   (c: any) => c.unit_id === unit.id
                 );
                 return (
-                  <tr key={unit.id} className="hover:bg-bg-secondary/30 transition-colors">
-                    <td className="px-5 py-3 font-medium">{unit.unit_number}</td>
-                    <td className="px-5 py-3">{unit.floor}F</td>
-                    <td className="px-5 py-3">{unit.layout}</td>
-                    <td className="px-5 py-3">{Number(unit.area_sqm)}m²</td>
-                    <td className="px-5 py-3 text-right">¥{Number(unit.rent).toLocaleString()}</td>
-                    <td className="px-5 py-3 text-right">¥{Number(unit.management_fee).toLocaleString()}</td>
-                    <td className="px-5 py-3"><StatusBadge status={unit.status} /></td>
-                    <td className="px-5 py-3 text-text-secondary">{contract?.tenant?.name || "—"}</td>
+                  <tr key={unit.id} className="border-b border-border-light last:border-0 hover:bg-bg-secondary/30 transition-colors">
+                    <td className="px-5 py-2.5 font-medium">{unit.unit_number}</td>
+                    <td className="px-5 py-2.5">{unit.floor}F</td>
+                    <td className="px-5 py-2.5">{unit.layout}</td>
+                    <td className="px-5 py-2.5">{Number(unit.area_sqm)}m²</td>
+                    <td className="px-5 py-2.5 text-right tabular-nums">¥{Number(unit.rent).toLocaleString()}</td>
+                    <td className="px-5 py-2.5 text-right tabular-nums">¥{Number(unit.management_fee).toLocaleString()}</td>
+                    <td className="px-5 py-2.5"><StatusBadge status={unit.status} /></td>
+                    <td className="px-5 py-2.5 text-text-secondary">{contract?.tenant?.name || "—"}</td>
                   </tr>
                 );
               })}

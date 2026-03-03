@@ -3,15 +3,6 @@ import { getExpenses } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 
-const categoryLabels: Record<string, string> = {
-  repair: "修繕費",
-  cleaning: "清掃費",
-  insurance: "保険料",
-  tax: "税金",
-  utility: "光熱費",
-  other: "その他",
-};
-
 export default async function ExpensesPage() {
   const expenses = await getExpenses();
 
@@ -24,7 +15,6 @@ export default async function ExpensesPage() {
     .reduce((s: number, e: any) => s + Number(e.amount), 0);
   const companyChargeAmount = totalAmount - ownerChargeAmount;
 
-  // カテゴリ別集計
   const byCategory = expenses.reduce(
     (acc: Record<string, number>, e: any) => {
       acc[e.category] = (acc[e.category] || 0) + Number(e.amount);
@@ -40,50 +30,42 @@ export default async function ExpensesPage() {
         description="物件経費・オーナー負担の管理"
         action={
           <button className="btn-primary">
-            <Plus size={16} />
+            <Plus size={14} />
             経費を登録
           </button>
         }
       />
 
       {/* サマリー */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="card p-5">
-          <p className="text-xs text-text-muted mb-1">経費総額</p>
-          <p className="text-xl font-bold tracking-tight">
-            ¥{totalAmount.toLocaleString()}
-          </p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div className="card p-4">
+          <p className="text-[11px] text-text-muted uppercase tracking-wider mb-2">経費総額</p>
+          <p className="text-xl font-semibold tabular-nums">¥{totalAmount.toLocaleString()}</p>
         </div>
-        <div className="card p-5">
-          <p className="text-xs text-text-muted mb-1">オーナー負担</p>
-          <p className="text-xl font-bold text-warning tracking-tight">
-            ¥{ownerChargeAmount.toLocaleString()}
-          </p>
-          <p className="text-[11px] text-text-muted mt-0.5">
-            送金時に控除
-          </p>
+        <div className="card p-4 border-l-3 border-l-warning">
+          <p className="text-[11px] text-text-muted uppercase tracking-wider mb-2">オーナー負担</p>
+          <p className="text-xl font-semibold text-warning tabular-nums">¥{ownerChargeAmount.toLocaleString()}</p>
+          <p className="text-[11px] text-text-muted mt-0.5">送金時に控除</p>
         </div>
-        <div className="card p-5">
-          <p className="text-xs text-text-muted mb-1">管理会社負担</p>
-          <p className="text-xl font-bold text-accent tracking-tight">
-            ¥{companyChargeAmount.toLocaleString()}
-          </p>
+        <div className="card p-4">
+          <p className="text-[11px] text-text-muted uppercase tracking-wider mb-2">管理会社負担</p>
+          <p className="text-xl font-semibold text-accent tabular-nums">¥{companyChargeAmount.toLocaleString()}</p>
         </div>
-        <div className="card p-5">
-          <p className="text-xs text-text-muted mb-1">登録件数</p>
-          <p className="text-xl font-bold tracking-tight">{expenses.length}件</p>
+        <div className="card p-4">
+          <p className="text-[11px] text-text-muted uppercase tracking-wider mb-2">登録件数</p>
+          <p className="text-xl font-semibold tabular-nums">{expenses.length}件</p>
         </div>
       </div>
 
       {/* カテゴリ別内訳 */}
-      <div className="flex flex-wrap gap-2 mb-5">
+      <div className="flex flex-wrap gap-1.5 mb-4">
         {Object.entries(byCategory).map(([cat, amount]) => (
           <div
             key={cat}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-bg-secondary text-xs"
+            className="flex items-center gap-2 px-3 py-1.5 rounded bg-card shadow-sm text-[12px]"
           >
             <StatusBadge status={cat} />
-            <span className="font-medium">
+            <span className="font-medium tabular-nums">
               ¥{(amount as number).toLocaleString()}
             </span>
           </div>
@@ -92,19 +74,19 @@ export default async function ExpensesPage() {
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-[13px]">
             <thead>
-              <tr className="text-left text-text-muted bg-bg-secondary/50">
-                <th className="px-5 py-3 font-medium">日付</th>
-                <th className="px-5 py-3 font-medium">カテゴリ</th>
-                <th className="px-5 py-3 font-medium">内容</th>
-                <th className="px-5 py-3 font-medium">物件</th>
-                <th className="px-5 py-3 font-medium">部屋</th>
-                <th className="px-5 py-3 font-medium text-right">金額</th>
-                <th className="px-5 py-3 font-medium">負担</th>
+              <tr className="text-left text-text-muted border-b border-border-light">
+                <th className="px-5 py-2.5 font-medium">日付</th>
+                <th className="px-5 py-2.5 font-medium">カテゴリ</th>
+                <th className="px-5 py-2.5 font-medium">内容</th>
+                <th className="px-5 py-2.5 font-medium">物件</th>
+                <th className="px-5 py-2.5 font-medium">部屋</th>
+                <th className="px-5 py-2.5 font-medium text-right">金額</th>
+                <th className="px-5 py-2.5 font-medium">負担</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-light">
+            <tbody>
               {expenses.length === 0 ? (
                 <tr>
                   <td
@@ -118,30 +100,31 @@ export default async function ExpensesPage() {
                 expenses.map((e: Record<string, any>) => (
                   <tr
                     key={e.id}
-                    className="hover:bg-bg-secondary/30 transition-colors"
+                    className="border-b border-border-light last:border-0 hover:bg-bg-secondary/30 transition-colors"
                   >
-                    <td className="px-5 py-3">{e.expense_date}</td>
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-2.5">{e.expense_date}</td>
+                    <td className="px-5 py-2.5">
                       <StatusBadge status={e.category} />
                     </td>
-                    <td className="px-5 py-3 font-medium">{e.description}</td>
-                    <td className="px-5 py-3 text-text-secondary">
+                    <td className="px-5 py-2.5 font-medium">{e.description}</td>
+                    <td className="px-5 py-2.5 text-text-secondary">
                       {e.property?.name || "—"}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-2.5">
                       {e.unit?.unit_number || "—"}
                     </td>
-                    <td className="px-5 py-3 text-right font-medium">
+                    <td className="px-5 py-2.5 text-right font-medium tabular-nums">
                       ¥{Number(e.amount).toLocaleString()}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-2.5">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${
+                        className={`inline-flex items-center gap-1.5 text-xs font-medium ${
                           e.is_owner_charge
-                            ? "bg-warning/10 text-warning ring-warning/20"
-                            : "bg-accent/10 text-accent ring-accent/20"
+                            ? "text-warning"
+                            : "text-accent"
                         }`}
                       >
+                        <span className={`w-1.5 h-1.5 rounded-full ${e.is_owner_charge ? "bg-warning" : "bg-accent"}`} />
                         {e.is_owner_charge ? "オーナー" : "管理会社"}
                       </span>
                     </td>

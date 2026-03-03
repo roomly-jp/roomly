@@ -1,63 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --primary: #0f172a;
-  --primary-light: #1e293b;
-  --accent: #3b82f6;
-  --accent-light: #60a5fa;
-  --accent-subtle: #eff6ff;
-  --success: #10b981;
-  --success-bg: #ecfdf5;
-  --warning: #f59e0b;
-  --warning-bg: #fffbeb;
-  --danger: #ef4444;
-  --danger-bg: #fef2f2;
-  --bg: #f8fafc;
-  --bg-secondary: #f1f5f9;
+  /* Roomly — Refined Architectural */
+  --primary: #2d3436;
+  --primary-light: #3d4447;
+  --accent: #5a7a6a;
+  --accent-light: #7a9a8a;
+  --accent-subtle: #eef3f0;
+  --success: #4a8c6f;
+  --success-bg: #eef6f1;
+  --warning: #c4873b;
+  --warning-bg: #fdf4e8;
+  --danger: #c0392b;
+  --danger-bg: #fdf0ee;
+  --bg: #f5f3f0;
+  --bg-secondary: #edeae6;
   --card: #ffffff;
-  --card-hover: #fafbfc;
-  --border: #e2e8f0;
-  --border-light: #f1f5f9;
-  --text: #0f172a;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --sidebar-width: 256px;
-  --sidebar-collapsed: 72px;
-  --header-height: 64px;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-xs: 6px;
+  --card-hover: #fcfbfa;
+  --border: #e0ddd8;
+  --border-light: #edeae6;
+  --text: #2d3436;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --sidebar-bg: #ffffff;
+  --sidebar-active: #f5f3f0;
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 64px;
+  --header-height: 56px;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow: 0 1px 4px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 2px 8px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 4px 16px rgb(0 0 0 / 0.1);
+  --radius: 6px;
+  --radius-sm: 4px;
+  --radius-xs: 3px;
 }
 
 [data-theme="dark"] {
-  --primary: #0f172a;
-  --primary-light: #1e293b;
-  --accent: #60a5fa;
-  --accent-light: #93c5fd;
-  --accent-subtle: #1e293b;
-  --success: #34d399;
-  --success-bg: #064e3b;
-  --warning: #fbbf24;
-  --warning-bg: #451a03;
-  --danger: #f87171;
-  --danger-bg: #450a0a;
-  --bg: #0c1222;
-  --bg-secondary: #111827;
-  --card: #1e293b;
-  --card-hover: #263548;
-  --border: #334155;
-  --border-light: #1e293b;
-  --text: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --primary: #1a1d1e;
+  --primary-light: #2a2d2e;
+  --accent: #7a9a8a;
+  --accent-light: #9ab8a8;
+  --accent-subtle: #1e2a24;
+  --success: #5a9c7f;
+  --success-bg: #162820;
+  --warning: #d49748;
+  --warning-bg: #2a1f10;
+  --danger: #d4534a;
+  --danger-bg: #2a1210;
+  --bg: #111314;
+  --bg-secondary: #1a1d1e;
+  --card: #1e2122;
+  --card-hover: #262a2b;
+  --border: #2e3234;
+  --border-light: #242728;
+  --text: #e8e6e3;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --sidebar-bg: #1a1d1e;
+  --sidebar-active: #242728;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.2);
+  --shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+  --shadow-md: 0 2px 8px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 4px 16px rgb(0 0 0 / 0.35);
 }
 
 @theme inline {
@@ -81,6 +86,8 @@
   --color-text: var(--text);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-sidebar-active: var(--sidebar-active);
 }
 
 body {
@@ -92,21 +99,21 @@ body {
 
 /* スクロールバー */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--text-muted);
+  background: var(--border);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: var(--text-muted);
 }
 
-/* テーブルのモダンスタイル */
+/* テーブル */
 table {
   border-collapse: separate;
   border-spacing: 0;
@@ -116,34 +123,36 @@ table {
 *:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
-/* ボタンの共通スタイル */
+/* ボタン */
 .btn-primary {
   background: var(--accent);
   color: #ffffff;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
   font-weight: 500;
+  letter-spacing: 0.01em;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
 .btn-primary:hover {
-  filter: brightness(1.1);
-  box-shadow: var(--shadow-md);
+  background: var(--accent-light);
+  box-shadow: var(--shadow);
 }
 
 .btn-secondary {
   background: var(--card);
   color: var(--text-secondary);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
   font-weight: 500;
+  letter-spacing: 0.01em;
   border: 1px solid var(--border);
   transition: all 0.15s ease;
   display: inline-flex;
@@ -151,26 +160,22 @@ table {
   gap: 0.5rem;
 }
 .btn-secondary:hover {
-  background: var(--card-hover);
-  border-color: var(--accent);
-  color: var(--accent);
+  background: var(--bg-secondary);
+  color: var(--text);
 }
 
-/* カードの共通スタイル */
+/* カード — ボーダーレス、影のみ */
 .card {
   background: var(--card);
   border-radius: var(--radius);
-  border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 .card:hover {
   box-shadow: var(--shadow);
 }
 .card-interactive:hover {
-  border-color: var(--accent);
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
 }
 
 /* 入力フィールド */
@@ -178,16 +183,16 @@ table {
   width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  background: var(--bg);
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  background: var(--card);
   color: var(--text);
   transition: all 0.15s ease;
 }
 .input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-subtle);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
 }
 
 /* ツールチップ */
@@ -198,18 +203,18 @@ table {
   visibility: hidden;
   opacity: 0;
   position: absolute;
-  left: calc(100% + 12px);
+  left: calc(100% + 10px);
   top: 50%;
   transform: translateY(-50%);
   background: var(--text);
   color: var(--bg);
-  padding: 0.375rem 0.75rem;
-  border-radius: var(--radius-xs);
-  font-size: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.6875rem;
   font-weight: 500;
   white-space: nowrap;
   pointer-events: none;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
   z-index: 100;
 }
 .tooltip-trigger .tooltip::before {
@@ -218,7 +223,7 @@ table {
   right: 100%;
   top: 50%;
   transform: translateY(-50%);
-  border: 5px solid transparent;
+  border: 4px solid transparent;
   border-right-color: var(--text);
 }
 .tooltip-trigger:hover .tooltip {
@@ -226,7 +231,7 @@ table {
   opacity: 1;
 }
 
-/* スケルトンアニメーション */
+/* スケルトン */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -242,8 +247,8 @@ table {
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
   z-index: 40;
   opacity: 0;
   visibility: hidden;
@@ -254,7 +259,8 @@ table {
   visibility: visible;
 }
 
-/* グラデーション */
-.gradient-accent {
-  background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+/* アクセントバー — Roomlyの個性 */
+.accent-bar {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
 }
