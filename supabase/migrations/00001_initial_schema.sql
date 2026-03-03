@@ -25,7 +25,7 @@ create table public.companies (
   phone text,
   email text,
   plan text not null default 'free', -- free / pro
-  max_units int not null default 50,  -- フリーミアム上限
+  max_units int not null default 10,  -- フリーミアム上限
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

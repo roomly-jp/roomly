@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-rm-bg: #f5f3f0;
+  --color-rm-surface: #ffffff;
+  --color-rm-primary: #2d3436;
+  --color-rm-accent: #5a7a6a;
+  --color-rm-accent-light: #6b8f7b;
+  --color-rm-success: #5a7a6a;
+  --color-rm-border: #e0ddd8;
+  --color-rm-text: #2d3436;
+  --color-rm-text-secondary: #636e72;
+  --color-rm-text-muted: #9ca3a0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-rm-bg);
+  color: var(--color-rm-text);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in { animation: fade-in 0.6s ease-out both; }
+.animate-slide-up { animation: slide-up 0.8s ease-out both; }
+
+.prose-rm h2 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-rm-primary);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-rm-border);
+}
+
+.prose-rm h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-rm-text);
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-rm p {
+  margin-bottom: 1rem;
+  line-height: 1.85;
+  color: var(--color-rm-text-secondary);
+}
+
+.prose-rm strong {
+  color: var(--color-rm-text);
+  font-weight: 700;
+}
+
+.prose-rm a {
+  color: var(--color-rm-accent);
+  text-decoration: underline;
+}
+
+.prose-rm ul, .prose-rm ol {
+  padding-left: 1.5rem;
+  color: var(--color-rm-text-secondary);
+}
+
+.prose-rm li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+}
+
+.prose-rm blockquote {
+  border-left: 3px solid var(--color-rm-accent);
+  background: var(--color-rm-bg);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  color: var(--color-rm-text-secondary);
 }
