@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts } from "@/lib/blog";
+import { getAllPosts } from "@/lib/column";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://hp.roomly.jp";
