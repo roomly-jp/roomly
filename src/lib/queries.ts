@@ -309,6 +309,31 @@ export async function getPropertiesForSelect() {
   }));
 }
 
+// 送金一覧
+export async function getRemittances() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("owner_remittances")
+    .select("*, owner:owners(name)")
+    .order("remittance_month", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Row[];
+}
+
+// オーナーセレクトリスト
+export async function getOwnersForSelect() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("owners")
+    .select("id, name")
+    .order("name");
+  if (error) throw error;
+  return (data ?? []).map((o: Row) => ({
+    id: o.id,
+    label: o.name,
+  }));
+}
+
 // バッジカウント + 会社設定（Sidebar用API）
 export async function getBadgeCounts() {
   const supabase = await createClient();

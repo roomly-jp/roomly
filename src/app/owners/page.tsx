@@ -1,9 +1,10 @@
 import { Plus } from "lucide-react";
-import { getOwners, getExpenses } from "@/lib/queries";
+import { getOwners, getExpenses, getRemittances } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
+import StatusBadge from "@/components/StatusBadge";
 
 export default async function OwnersPage() {
-  const [owners, expenses] = await Promise.all([getOwners(), getExpenses()]);
+  const [owners, expenses, remittances] = await Promise.all([getOwners(), getExpenses(), getRemittances()]);
 
   const ownerExpenses = expenses
     .filter((e: any) => e.is_owner_charge && e.owner_id)
@@ -227,6 +228,56 @@ export default async function OwnersPage() {
           </div>
         </div>
       </div>
+
+      {/* 送金履歴 */}
+      {remittances.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-[14px] font-semibold mb-3">送金履歴</h2>
+          <div className="card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="text-left text-text-muted border-b border-border-light">
+                    <th className="px-5 py-2.5 font-medium">対象月</th>
+                    <th className="px-5 py-2.5 font-medium">オーナー</th>
+                    <th className="px-5 py-2.5 font-medium text-right">家賃収入</th>
+                    <th className="px-5 py-2.5 font-medium text-right">管理手数料</th>
+                    <th className="px-5 py-2.5 font-medium text-right">経費控除</th>
+                    <th className="px-5 py-2.5 font-medium text-right">送金額</th>
+                    <th className="px-5 py-2.5 font-medium">状態</th>
+                    <th className="px-5 py-2.5 font-medium"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {remittances.map((r: Record<string, any>) => (
+                    <tr key={r.id} className="border-b border-border-light last:border-0 hover:bg-bg-secondary/30 transition-colors">
+                      <td className="px-5 py-2.5">{r.remittance_month?.slice(0, 7)}</td>
+                      <td className="px-5 py-2.5 font-medium">{r.owner?.name ?? "—"}</td>
+                      <td className="px-5 py-2.5 text-right tabular-nums">¥{Number(r.total_rent).toLocaleString()}</td>
+                      <td className="px-5 py-2.5 text-right text-danger tabular-nums">-¥{Number(r.management_fee_deducted).toLocaleString()}</td>
+                      <td className="px-5 py-2.5 text-right text-warning tabular-nums">
+                        {Number(r.expense_deducted) > 0 ? `-¥${Number(r.expense_deducted).toLocaleString()}` : "—"}
+                      </td>
+                      <td className="px-5 py-2.5 text-right font-medium text-accent tabular-nums">¥{Number(r.net_amount).toLocaleString()}</td>
+                      <td className="px-5 py-2.5"><StatusBadge status={r.status} /></td>
+                      <td className="px-5 py-2.5">
+                        <a
+                          href={`/api/remittances/${r.id}/pdf`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-accent hover:underline"
+                        >
+                          PDF
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

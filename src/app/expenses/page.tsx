@@ -1,10 +1,14 @@
-import { Plus } from "lucide-react";
-import { getExpenses } from "@/lib/queries";
+import { getExpenses, getPropertiesForSelect, getOwnersForSelect } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
+import ExpensesPageClient from "@/components/ExpensesPageClient";
 
 export default async function ExpensesPage() {
-  const expenses = await getExpenses();
+  const [expenses, properties, owners] = await Promise.all([
+    getExpenses(),
+    getPropertiesForSelect(),
+    getOwnersForSelect(),
+  ]);
 
   const totalAmount = expenses.reduce(
     (s: number, e: any) => s + Number(e.amount),
@@ -28,12 +32,7 @@ export default async function ExpensesPage() {
       <PageHeader
         title="経費管理"
         description="物件経費・オーナー負担の管理"
-        action={
-          <button className="btn-primary">
-            <Plus size={14} />
-            経費を登録
-          </button>
-        }
+        action={<ExpensesPageClient properties={properties} owners={owners} />}
       />
 
       {/* サマリー */}
