@@ -7,11 +7,15 @@ import {
   Hammer,
   Megaphone,
 } from "lucide-react";
-import { getDashboardData } from "@/lib/queries";
+import { getDashboardData, getMonthlyTrend } from "@/lib/queries";
 import StatusBadge from "@/components/StatusBadge";
 import PageHeader from "@/components/PageHeader";
 
 export default async function DashboardPage() {
+  const [dashData, monthlyTrend] = await Promise.all([
+    getDashboardData(),
+    getMonthlyTrend(),
+  ]);
   const {
     stats: s,
     overdueBillings,
@@ -20,7 +24,7 @@ export default async function DashboardPage() {
     recentInquiries,
     maintenanceUnits,
     vacantUnits,
-  } = await getDashboardData();
+  } = dashData;
 
   const now = new Date();
   const expiringWithDays = expiringContracts.map((c: Record<string, any>) => {
@@ -159,6 +163,31 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* 月次推移 */}
+      {monthlyTrend.length > 0 && (
+        <div className="card overflow-hidden mb-8">
+          <div className="px-5 py-3 border-b border-border-light">
+            <h2 className="text-[13px] font-semibold">月次推移（家賃回収率）</h2>
+          </div>
+          <div className="p-4">
+            <div className="flex items-end gap-2 h-32">
+              {monthlyTrend.map((m: Record<string, any>) => (
+                <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
+                  <span className="text-[10px] text-text-muted tabular-nums">{m.collectionRate}%</span>
+                  <div className="w-full bg-bg-secondary rounded-t relative" style={{ height: "100px" }}>
+                    <div
+                      className="absolute bottom-0 w-full bg-accent rounded-t transition-all"
+                      style={{ height: `${m.collectionRate}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-text-muted">{m.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* テーブル2列 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -267,6 +267,46 @@ export async function getDashboardData() {
   };
 }
 
+// 月次推移データ（過去6ヶ月分の入居率・家賃回収率）
+export async function getMonthlyTrend() {
+  const supabase = await createClient();
+  const now = new Date();
+  const months: string[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(d.toISOString().slice(0, 7));
+  }
+
+  // 月ごとの家賃請求データ
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+  const { data: billings } = await supabase
+    .from("rent_billings")
+    .select("billing_month, status, total_amount")
+    .gte("billing_month", sixMonthsAgo.toISOString().slice(0, 10));
+
+  const trend = months.map((month) => {
+    const monthBillings = (billings ?? []).filter(
+      (b: Row) => (b.billing_month as string)?.slice(0, 7) === month
+    );
+    const total = monthBillings.reduce(
+      (s: number, b: Row) => s + Number(b.total_amount),
+      0
+    );
+    const paid = monthBillings
+      .filter((b: Row) => b.status === "paid")
+      .reduce((s: number, b: Row) => s + Number(b.total_amount), 0);
+    return {
+      month,
+      label: `${month.slice(5)}月`,
+      totalAmount: total,
+      paidAmount: paid,
+      collectionRate: total > 0 ? Math.round((paid / total) * 100) : 0,
+    };
+  });
+
+  return trend;
+}
+
 // 部屋セレクトリスト（物件名付き）
 export async function getUnitsForSelect() {
   const supabase = await createClient();
