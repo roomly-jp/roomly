@@ -1,7 +1,7 @@
-import { Plus } from "lucide-react";
 import { getInquiries } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
+import InquiriesPageClient from "@/components/InquiriesPageClient";
 
 export default async function InquiriesPage() {
   const inquiries = await getInquiries();
@@ -11,12 +11,7 @@ export default async function InquiriesPage() {
       <PageHeader
         title="問い合わせ管理"
         description={`${inquiries.length}件の問い合わせ`}
-        action={
-          <button className="btn-primary">
-            <Plus size={14} />
-            問い合わせを登録
-          </button>
-        }
+        action={<InquiriesPageClient />}
       />
 
       <div className="card overflow-hidden">

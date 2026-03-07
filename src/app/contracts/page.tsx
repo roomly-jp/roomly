@@ -1,22 +1,21 @@
-import { Plus } from "lucide-react";
-import { getContracts } from "@/lib/queries";
+import { getContracts, getUnitsForSelect, getTenantsForSelect } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
+import ContractsPageClient from "@/components/ContractsPageClient";
 
 export default async function ContractsPage() {
-  const contracts = await getContracts();
+  const [contracts, units, tenants] = await Promise.all([
+    getContracts(),
+    getUnitsForSelect(),
+    getTenantsForSelect(),
+  ]);
 
   return (
     <>
       <PageHeader
         title="契約管理"
         description={`${contracts.length}件の契約`}
-        action={
-          <button className="btn-primary">
-            <Plus size={14} />
-            新規契約
-          </button>
-        }
+        action={<ContractsPageClient units={units} tenants={tenants} />}
       />
 
       <div className="flex gap-1.5 mb-4">

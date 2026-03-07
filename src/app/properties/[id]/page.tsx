@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { getPropertyDetail } from "@/lib/queries";
 import StatusBadge from "@/components/StatusBadge";
+import PropertyDetailClient from "@/components/PropertyDetailClient";
 
 export default async function PropertyDetailPage({
   params,
@@ -23,12 +24,15 @@ export default async function PropertyDetailPage({
           <ArrowLeft size={13} />
           物件一覧に戻る
         </Link>
-        <div>
-          <h1 className="text-lg font-semibold">{property.name}</h1>
-          <p className="flex items-center gap-1 text-[13px] text-text-muted mt-0.5">
-            <MapPin size={12} />
-            {property.address}
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-semibold">{property.name}</h1>
+            <p className="flex items-center gap-1 text-[13px] text-text-muted mt-0.5">
+              <MapPin size={12} />
+              {property.address}
+            </p>
+          </div>
+          <PropertyDetailClient propertyId={id} />
         </div>
       </div>
 
@@ -74,7 +78,7 @@ export default async function PropertyDetailPage({
                     <td className="px-5 py-2.5 font-medium">{unit.unit_number}</td>
                     <td className="px-5 py-2.5">{unit.floor}F</td>
                     <td className="px-5 py-2.5">{unit.layout}</td>
-                    <td className="px-5 py-2.5">{Number(unit.area_sqm)}m²</td>
+                    <td className="px-5 py-2.5">{Number(unit.area_sqm)}m2</td>
                     <td className="px-5 py-2.5 text-right tabular-nums">¥{Number(unit.rent).toLocaleString()}</td>
                     <td className="px-5 py-2.5 text-right tabular-nums">¥{Number(unit.management_fee).toLocaleString()}</td>
                     <td className="px-5 py-2.5"><StatusBadge status={unit.status} /></td>

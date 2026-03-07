@@ -1,10 +1,13 @@
-import { Plus } from "lucide-react";
-import { getMaintenanceRequests } from "@/lib/queries";
+import { getMaintenanceRequests, getPropertiesForSelect } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
+import MaintenancePageClient from "@/components/MaintenancePageClient";
 
 export default async function MaintenancePage() {
-  const maintenanceRequests = await getMaintenanceRequests();
+  const [maintenanceRequests, properties] = await Promise.all([
+    getMaintenanceRequests(),
+    getPropertiesForSelect(),
+  ]);
 
   const sorted = [...maintenanceRequests].sort((a: any, b: any) => {
     const priorityOrder: Record<string, number> = { urgent: 0, high: 1, normal: 2, low: 3 };
@@ -16,12 +19,7 @@ export default async function MaintenancePage() {
       <PageHeader
         title="修繕管理"
         description={`${maintenanceRequests.length}件の修繕依頼`}
-        action={
-          <button className="btn-primary">
-            <Plus size={14} />
-            依頼を登録
-          </button>
-        }
+        action={<MaintenancePageClient properties={properties} />}
       />
 
       <div className="flex gap-1.5 mb-4">

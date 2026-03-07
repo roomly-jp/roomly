@@ -1,6 +1,7 @@
 import { getRentBillings } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
+import { RentPaymentButton } from "@/components/RentPageClient";
 
 export default async function RentPage() {
   const billings = await getRentBillings();
@@ -74,13 +75,14 @@ export default async function RentPage() {
                 <th className="px-5 py-2.5 font-medium text-right">合計</th>
                 <th className="px-5 py-2.5 font-medium">支払期限</th>
                 <th className="px-5 py-2.5 font-medium">状態</th>
+                <th className="px-5 py-2.5 font-medium"></th>
               </tr>
             </thead>
             <tbody>
               {billings.map((b: Record<string, any>) => (
                 <tr
                   key={b.id}
-                  className={`border-b border-border-light last:border-0 hover:bg-bg-secondary/30 transition-colors cursor-pointer ${
+                  className={`border-b border-border-light last:border-0 hover:bg-bg-secondary/30 transition-colors ${
                     b.status === "overdue" ? "bg-danger/5" : ""
                   }`}
                 >
@@ -93,6 +95,20 @@ export default async function RentPage() {
                   <td className="px-5 py-2.5 text-right font-medium tabular-nums">¥{Number(b.total_amount).toLocaleString()}</td>
                   <td className="px-5 py-2.5">{b.due_date}</td>
                   <td className="px-5 py-2.5"><StatusBadge status={b.status} /></td>
+                  <td className="px-5 py-2.5">
+                    {b.status !== "paid" && (
+                      <RentPaymentButton
+                        billing={{
+                          id: b.id,
+                          total_amount: Number(b.total_amount),
+                          paid_amount: b.status === "partial" ? Number(b.total_amount) * 0.5 : 0,
+                          tenant_name: b.contract?.tenant?.name || "—",
+                          unit_label: `${b.contract?.unit?.property?.name || ""} ${b.contract?.unit?.unit_number || ""}`,
+                          billing_month: b.billing_month,
+                        }}
+                      />
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,0 +1,203 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
+import { inquirySchema, type InquiryFormData } from "@/lib/schemas";
+import type { ZodError } from "zod";
+
+interface InquiryFormModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  editData?: Record<string, any> | null;
+}
+
+export default function InquiryFormModal({
+  isOpen,
+  onClose,
+  editData,
+}: InquiryFormModalProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [apiError, setApiError] = useState("");
+
+  if (!isOpen) return null;
+
+  const isEdit = !!editData;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setErrors({});
+    setApiError("");
+
+    const formData = new FormData(e.currentTarget);
+    const data: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+
+    try {
+      const parsed = inquirySchema.parse(data) as InquiryFormData;
+      setLoading(true);
+
+      const url = isEdit
+        ? `/api/inquiries/${editData!.id}`
+        : "/api/inquiries";
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parsed),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        setApiError(err.error || "エラーが発生しました");
+        return;
+      }
+
+      onClose();
+      router.refresh();
+    } catch (err) {
+      const zodErr = err as ZodError;
+      if (zodErr.flatten) {
+        setErrors(zodErr.flatten().fieldErrors as Record<string, string[]>);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="bg-card rounded-2xl shadow-xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-[15px] font-semibold">
+            {isEdit ? "問い合わせを編集" : "問い合わせを登録"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-text-muted hover:text-text transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {apiError && (
+          <div className="bg-danger-bg text-danger text-sm rounded-lg px-3 py-2 mb-4">
+            {apiError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-text-secondary block mb-1">
+              件名 <span className="text-danger">*</span>
+            </label>
+            <input
+              name="title"
+              defaultValue={editData?.title || ""}
+              className="input"
+              placeholder="例: 騒音の苦情"
+            />
+            {errors.title && (
+              <p className="text-danger text-sm mt-1">{errors.title[0]}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium text-text-secondary block mb-1">
+                種別 <span className="text-danger">*</span>
+              </label>
+              <select
+                name="inquiry_type"
+                defaultValue={editData?.inquiry_type || "general"}
+                className="input"
+              >
+                <option value="general">一般</option>
+                <option value="complaint">クレーム</option>
+                <option value="noise">騒音</option>
+                <option value="facility">設備</option>
+                <option value="move_out">退去</option>
+                <option value="other">その他</option>
+              </select>
+              {errors.inquiry_type && (
+                <p className="text-danger text-sm mt-1">
+                  {errors.inquiry_type[0]}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="text-sm font-medium text-text-secondary block mb-1">
+                優先度
+              </label>
+              <select
+                name="priority"
+                defaultValue={editData?.priority || "normal"}
+                className="input"
+              >
+                <option value="low">低</option>
+                <option value="normal">通常</option>
+                <option value="high">高</option>
+                <option value="urgent">緊急</option>
+              </select>
+            </div>
+          </div>
+
+          {isEdit && (
+            <div>
+              <label className="text-sm font-medium text-text-secondary block mb-1">
+                状態
+              </label>
+              <select
+                name="status"
+                defaultValue={editData?.status || "open"}
+                className="input"
+              >
+                <option value="open">未対応</option>
+                <option value="in_progress">対応中</option>
+                <option value="resolved">解決済</option>
+                <option value="closed">クローズ</option>
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label className="text-sm font-medium text-text-secondary block mb-1">
+              詳細
+            </label>
+            <textarea
+              name="description"
+              defaultValue={editData?.description || ""}
+              className="input min-h-[80px]"
+              placeholder="問い合わせの詳細を入力..."
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-bg-secondary text-text-secondary rounded-lg px-4 py-2 text-sm hover:bg-border-light transition-colors"
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary disabled:opacity-50"
+            >
+              {loading ? "保存中..." : isEdit ? "更新する" : "登録する"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

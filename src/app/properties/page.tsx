@@ -1,23 +1,27 @@
 import Link from "next/link";
-import { Plus, MapPin } from "lucide-react";
-import { getProperties } from "@/lib/queries";
+import { MapPin } from "lucide-react";
+import { getProperties, getOwners } from "@/lib/queries";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
+import PropertiesPageClient from "@/components/PropertiesPageClient";
 
 export default async function PropertiesPage() {
-  const properties = await getProperties();
+  const [properties, owners] = await Promise.all([
+    getProperties(),
+    getOwners(),
+  ]);
+
+  const ownerOptions = owners.map((o: Record<string, any>) => ({
+    id: o.id,
+    name: o.name,
+  }));
 
   return (
     <>
       <PageHeader
         title="物件管理"
         description={`${properties.length}件の管理物件`}
-        action={
-          <button className="btn-primary">
-            <Plus size={14} />
-            物件を追加
-          </button>
-        }
+        action={<PropertiesPageClient owners={ownerOptions} />}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">

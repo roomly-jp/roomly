@@ -267,6 +267,48 @@ export async function getDashboardData() {
   };
 }
 
+// 部屋セレクトリスト（物件名付き）
+export async function getUnitsForSelect() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("units")
+    .select("id, unit_number, property:properties(name)")
+    .order("unit_number");
+  if (error) throw error;
+  return (data ?? []).map((u: Row) => ({
+    id: u.id,
+    label: `${u.property?.name || ""} ${u.unit_number}`,
+  }));
+}
+
+// 入居者セレクトリスト
+export async function getTenantsForSelect() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("tenants")
+    .select("id, name")
+    .order("name");
+  if (error) throw error;
+  return (data ?? []).map((t: Row) => ({
+    id: t.id,
+    label: t.name,
+  }));
+}
+
+// 物件セレクトリスト
+export async function getPropertiesForSelect() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("properties")
+    .select("id, name")
+    .order("name");
+  if (error) throw error;
+  return (data ?? []).map((p: Row) => ({
+    id: p.id,
+    label: p.name,
+  }));
+}
+
 // バッジカウント + 会社設定（Sidebar用API）
 export async function getBadgeCounts() {
   const supabase = await createClient();
