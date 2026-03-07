@@ -310,15 +310,15 @@
 ## Phase 4: HP/LP & マーケティング
 
 ### 4.1 HP
-- [ ] 機能紹介（スクショ付き）+ 料金ページ + 導入事例テンプレート + FAQ
+- [x] 機能紹介（スクショ付き）+ 料金ページ + 導入事例テンプレート + FAQ
 - **検証**: `npm run build` 成功（hp/）
 
 ### 4.2 SEO記事
-- [ ] draft/ レビュー → released/ に移動 + 内部リンク + CTA
+- [x] draft/ レビュー → released/ に移動 + 内部リンク + CTA
 - **検証**: released/ に5本以上
 
 ### 4.3 LP
-- [ ] ヒーロー + 課題提起 + 機能紹介 + 料金 + フォーム（→ Supabase inquiries + Resend）
+- [x] ヒーロー + 課題提起 + 機能紹介 + 料金 + フォーム（→ Supabase inquiries + Resend）
 - **検証**: `npm run build` 成功（lp/）
 
 ---
